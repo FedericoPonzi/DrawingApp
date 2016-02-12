@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">Drawingapp</string>
+    <string name="title_activity_splash_screen">SplashScreen</string>
+    <string name="action_about">About</string>
+    <string name="cool">Cool!</string>
+    <string name="about_content">Welcome to the greatest Drawing app ever!</string>
+    <string name="about_title">About Drawingapp</string>
+    <string name="open_from_gallery">Gallery</string>
+    <string name="open_from_camera">Camera</string>
+    <string name="create_from_scratch">Sketch</string>
+    <string name="title_activity_drawing">DrawingActivity</string>
+</resources>
