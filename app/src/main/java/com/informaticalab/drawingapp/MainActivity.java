@@ -61,7 +61,7 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onClick(View v)
             {
-
+                MainActivity.this.startActivity(new Intent(MainActivity.this, DrawingActivity.class));
             }
         });
 
