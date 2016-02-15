@@ -58,7 +58,7 @@
             android:layout_height="wrap_content"
             fab:fab_colorNormal="@color/white"
             fab:fab_colorPressed="@color/white_pressed"
-            fab:fab_icon="@drawable/camera_19"
+            fab:fab_icon="@drawable/camera"
             fab:fab_title="@string/open_from_camera"/>
 
         <com.getbase.floatingactionbutton.FloatingActionButton
@@ -67,7 +67,7 @@
             android:layout_height="wrap_content"
             fab:fab_colorNormal="@color/white"
             fab:fab_colorPressed="@color/white_pressed"
-            fab:fab_icon="@drawable/nuovo"
+            fab:fab_icon="@drawable/sketch"
             fab:fab_title="@string/create_from_scratch"/>
 
     </com.getbase.floatingactionbutton.FloatingActionsMenu>
