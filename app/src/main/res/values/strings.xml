@@ -9,4 +9,8 @@
     <string name="open_from_camera">Camera</string>
     <string name="create_from_scratch">Sketch</string>
     <string name="title_activity_drawing">DrawingActivity</string>
+    <string name="dialog_trash_title">Delete everything</string>
+    <string name="yes">yes</string>
+    <string name="no">no</string>
+    <string name="dialog_trash_message">Are you sure?&lt;br&gt; &lt;small&gt;Clicking on yes will delete everything. &lt;/small&gt;</string>
 </resources>

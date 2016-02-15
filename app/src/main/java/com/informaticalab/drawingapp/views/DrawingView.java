@@ -5,17 +5,27 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.PorterDuff;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
 import com.informaticalab.drawingapp.R;
+
+import java.util.ArrayList;
 
 /**
  * Created by FedericoPonzi on 12/02/2016.
  */
 public class DrawingView extends View
 {
+
+    private static String LOG_TAG = DrawingView.class.getSimpleName();
+
+    private ArrayList<Path> paths = new ArrayList<Path>();
+    private ArrayList<Path> undonePaths = new ArrayList<Path>();
+
     //drawing path
     private Path drawPath;
 
@@ -84,13 +94,23 @@ public class DrawingView extends View
         //respond to down, move and up events
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
+                Log.i(LOG_TAG, "Ricevuto touch down!");
+                //touch_start(touchX, touchY);
                 drawPath.moveTo(touchX, touchY);
                 break;
             case MotionEvent.ACTION_MOVE:
+                //touch_move(touchX, touchY);
+                Log.i(LOG_TAG, "Ricevuto touch move!");
                 drawPath.lineTo(touchX, touchY);
                 break;
             case MotionEvent.ACTION_UP:
+
+                Log.i(LOG_TAG, "Ricevuto touch up!");
+                //touch_up();
+                //invalidate();
                 drawPath.lineTo(touchX, touchY);
+                drawCanvas.drawPoint(touchX, touchY, drawPaint); //Aggiunto per punti singoli
+
                 drawCanvas.drawPath(drawPath, drawPaint);
                 drawPath.reset();
                 break;
@@ -100,5 +120,10 @@ public class DrawingView extends View
         //redraw
         invalidate();
         return true;
+    }
+    /** Start new Drawing */
+    public void eraseAll() {
+        drawCanvas.drawColor(0, PorterDuff.Mode.CLEAR);
+        invalidate();
     }
 }

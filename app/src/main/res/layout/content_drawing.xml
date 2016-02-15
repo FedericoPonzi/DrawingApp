@@ -13,8 +13,10 @@
     tools:context="com.informaticalab.drawingapp.DrawingActivity"
     tools:showIn="@layout/activity_drawing">
     <com.informaticalab.drawingapp.views.DrawingView
-        android:id="@+id/custom_view"
+        android:id="@+id/drawing_view"
+
         android:layout_width="match_parent"
         android:layout_height="match_parent"
        />
 </RelativeLayout>
+    
