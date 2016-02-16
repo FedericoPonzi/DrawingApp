@@ -1,10 +1,10 @@
 package com.informaticalab.drawingapp;
 
 import android.os.Bundle;
-
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Html;
+import android.util.Log;
 import android.view.View;
 
 import com.afollestad.materialdialogs.DialogAction;
@@ -14,24 +14,46 @@ import com.getbase.floatingactionbutton.FloatingActionsMenu;
 import com.informaticalab.drawingapp.views.DrawingView;
 
 public class DrawingActivity extends AppCompatActivity {
+    private static final String LOG_TAG = DrawingActivity.class.getSimpleName();
     FloatingActionButton undo;
     FloatingActionButton redo;
     FloatingActionButton trash;
     DrawingView drawingView;
     FloatingActionsMenu fabMenu;
+    FloatingActionsMenu fabMenuTwo;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_drawing);
-        fabMenu = (FloatingActionsMenu)findViewById(R.id.menu_fab);
+        undo = (FloatingActionButton) findViewById(R.id.undo_fab);
+        fabMenu = (FloatingActionsMenu)undo.getParent();
+        FloatingActionButton trashTwo = (FloatingActionButton) findViewById(R.id.trash2_fab);
+        fabMenuTwo = (FloatingActionsMenu) trashTwo.getParent();
+        Log.i(LOG_TAG, "Id: " + fabMenu.getId() + " Id2:" + fabMenuTwo.getId() + ".");
+        fabMenuTwo.setOnFloatingActionsMenuUpdateListener(
+        new FloatingActionsMenu.OnFloatingActionsMenuUpdateListener()
+        {
+            @Override
+            public void onMenuExpanded()
+            {
+                fabMenu.expand();
+            }
 
+            @Override
+            public void onMenuCollapsed()
+            {
+                fabMenu.collapse();
+            }
+        });
         drawingView = (DrawingView) findViewById(R.id.drawing_view);
         undo = (FloatingActionButton) findViewById(R.id.undo_fab);
         redo = (FloatingActionButton) findViewById(R.id.redo_fab);
         trash = (FloatingActionButton) findViewById( R.id.trash_fab);
-        undo.setOnClickListener(new View.OnClickListener() {
+        undo.setOnClickListener(new View.OnClickListener()
+        {
             @Override
-            public void onClick(View v) {
+            public void onClick(View v)
+            {
 
             }
         });
@@ -54,6 +76,7 @@ public class DrawingActivity extends AppCompatActivity {
                             public void onClick(MaterialDialog dialog, DialogAction which) {
                                 drawingView.eraseAll();
                                 fabMenu.collapseImmediately();
+                                fabMenuTwo.collapseImmediately();
                             }
                         })
                         .negativeText(android.R.string.no)

@@ -94,13 +94,12 @@ public class DrawingView extends View
         //respond to down, move and up events
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
-                Log.i(LOG_TAG, "Ricevuto touch down!");
                 //touch_start(touchX, touchY);
                 drawPath.moveTo(touchX, touchY);
                 break;
             case MotionEvent.ACTION_MOVE:
                 //touch_move(touchX, touchY);
-                Log.i(LOG_TAG, "Ricevuto touch move!");
+                Log.i(LOG_TAG, "Ricevut touch move!");
                 drawPath.lineTo(touchX, touchY);
                 break;
             case MotionEvent.ACTION_UP:
