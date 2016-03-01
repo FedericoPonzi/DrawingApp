@@ -1,11 +1,15 @@
 package com.informaticalab.drawingapp;
 
+import android.app.Activity;
 import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -20,12 +24,13 @@ import java.util.Date;
 
 public class MainActivity extends AppCompatActivity
 {
+    private static final String LOG_TAG = MainActivity.class.getSimpleName();
     FloatingActionButton fromGalleryFAB;
     FloatingActionButton fromCameraFAB;
     FloatingActionButton fromScartchFAB;
     String mCurrentPhotoPath;
-    static final int REQUEST_IMAGE_CAPTURE = 1;
-
+    static final int REQUEST_TAKE_PHOTO = 1;
+    static final int PICK_IMAGE_REQUEST = 2;
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -43,17 +48,36 @@ public class MainActivity extends AppCompatActivity
             public void onClick(View v)
             {
 
+                Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                // Ensure that there's a camera activity to handle the intent
+                if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+                    // Create the File where the photo should go
+                    File photoFile = null;
+                    try {
+                        photoFile = createImageFile();
+                    } catch (IOException ex) {
+                        // Error occurred while creating the File
+                        Log.e(LOG_TAG, "Error:" + ex);
+                    }
+                    // Continue only if the File was successfully created
+                    if (photoFile != null) {
+                        takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT,
+                                                   Uri.fromFile(photoFile));
+                        startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
+                    }
+                }
+
             }
         });
+
         fromGalleryFAB.setOnClickListener(new View.OnClickListener()
         {
             @Override
             public void onClick(View v)
             {
-                Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-                    startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
-                }
+                Intent i = new Intent(Intent.ACTION_PICK,
+                                      android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                startActivityForResult(i, PICK_IMAGE_REQUEST);
             }
         });
         fromScartchFAB.setOnClickListener(new View.OnClickListener()
@@ -68,12 +92,50 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data)
+    {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == REQUEST_TAKE_PHOTO && resultCode == Activity.RESULT_OK)
+        {
+            Intent i = new Intent(this, DrawingActivity.class);
+            i.putExtra(DrawingActivity.IMAGE_PATH, mCurrentPhotoPath.substring("file:".length())); //Tolgo il prefisso.
+            startActivity(i);
+            finish();
+        }
+        else if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null)
+        {
+
+            Uri selectedImage = data.getData();
+            String[] filePathColumn = { MediaStore.Images.Media.DATA };
+
+            Cursor cursor = getContentResolver().query(selectedImage,
+                                                       filePathColumn, null, null, null);
+            cursor.moveToFirst();
+
+            int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+            mCurrentPhotoPath = cursor.getString(columnIndex);
+            cursor.close();
+
+            Intent i = new Intent(this, DrawingActivity.class);
+            i.putExtra(DrawingActivity.IMAGE_PATH, mCurrentPhotoPath);
+            startActivity(i);
+            finish();
+        }
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu)
     {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
+
+    /**
+     * Preso da https://developer.android.com/training/camera/photobasics.html
+     * @return Puntatore al file
+     * @throws IOException
+     */
     private File createImageFile() throws IOException
     {
         // Create an image file name
@@ -91,6 +153,7 @@ public class MainActivity extends AppCompatActivity
         mCurrentPhotoPath = "file:" + image.getAbsolutePath();
         return image;
     }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item)
     {
