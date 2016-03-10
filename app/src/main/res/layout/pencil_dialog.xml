@@ -25,12 +25,73 @@
         app:sl_maxValue="10"
         app:sl_minValue="1"
         app:sl_value="5"/>
-    <ImageButton
-        android:id="@+id/rubber_imagebutton"
-        android:background="@color/white"
-        android:layout_width="36dp"
-        android:scaleType="fitXY"
-        android:layout_height="36dp"
-        android:src="@drawable/rubber_imagebutton"
-        />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <FrameLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1">
+
+            <ImageButton
+                android:id="@+id/rubber_imagebutton"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_alignParentLeft="true"
+                android:background="@color/white"
+                android:scaleType="fitXY"
+                android:src="@drawable/rubber_imagebutton"
+                />
+        </FrameLayout>
+
+        <FrameLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1">
+
+            <ImageButton
+                android:id="@+id/verticalflip_ib"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+
+                android:background="@color/white"
+                android:scaleType="fitXY"
+                android:src="@drawable/verticalflip_imagebutton"
+                />
+        </FrameLayout>
+
+
+
+        <FrameLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1">
+
+            <ImageButton
+                android:id="@+id/horizontalflip_ib"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:background="@color/white"
+                android:scaleType="fitXY"
+                android:src="@drawable/horizontalflip_imagebutton"
+                />
+        </FrameLayout>
+        <FrameLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1">
+
+        <ImageButton
+            android:id="@+id/cut_ib"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:background="@color/white"
+            android:scaleType="fitXY"
+            android:src="@drawable/cut_imagebutton"
+            />
+    </FrameLayout>
+    </LinearLayout>
 </LinearLayout>

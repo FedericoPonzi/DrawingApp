@@ -40,7 +40,10 @@ public class DrawingActivity extends AppCompatActivity
     private String mCurrentPhotoPath;
 
 
-    private boolean onRubber = false; //TODO: Salvare nella savedinstancestate.
+    private boolean onRubberisSelected = false; //TODO: Salvare nella savedinstancestate.
+    private boolean verticalFlipisSelected = false; //TODO: Salvare nella savedinstancestate.
+    private boolean horizontalFlipisSelected = false; //TODO: Salvare nella savedinstancestate.
+    private boolean cutIsSelected = false; //TODO: Salvare nella savedinstancestate.
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -117,8 +120,7 @@ public class DrawingActivity extends AppCompatActivity
                     }
                 });
 
-                rubber.setSelected(onRubber);
-
+                rubber.setSelected(onRubberisSelected);
                 rubber.setOnTouchListener(new View.OnTouchListener()
                 {
 
@@ -128,10 +130,69 @@ public class DrawingActivity extends AppCompatActivity
                         if (event.getAction() == MotionEvent.ACTION_UP)
                         {
                             v.setSelected(!v.isSelected());
-                            onRubber = v.isSelected();
-                            Log.v(LOG_TAG, "Stato:" + onRubber);
+                            onRubberisSelected = v.isSelected();
 
                             drawingView.toggleErase();
+                            return true;
+                        }
+                        return false;
+
+                    }
+                });
+
+                ImageButton vflip = (ImageButton) z.findViewById(R.id.verticalflip_ib);
+                vflip.setSelected(verticalFlipisSelected);
+                vflip.setOnTouchListener(new View.OnTouchListener()
+                {
+
+                    @Override
+                    public boolean onTouch(View v, MotionEvent event)
+                    {
+                        if (event.getAction() == MotionEvent.ACTION_UP)
+                        {
+                            v.setSelected(!v.isSelected());
+                            verticalFlipisSelected = v.isSelected();
+
+                            return true;
+                        }
+                        return false;
+
+                    }
+                });
+
+                ImageButton hflip = (ImageButton) z.findViewById(R.id.horizontalflip_ib);
+                hflip.setSelected(horizontalFlipisSelected);
+                hflip.setOnTouchListener(new View.OnTouchListener()
+                {
+
+                    @Override
+                    public boolean onTouch(View v, MotionEvent event)
+                    {
+                        if (event.getAction() == MotionEvent.ACTION_UP)
+                        {
+                            v.setSelected(!v.isSelected());
+                            horizontalFlipisSelected = v.isSelected();
+
+                            return true;
+                        }
+                        return false;
+
+                    }
+                });
+
+                ImageButton cut = (ImageButton) z.findViewById(R.id.cut_ib);
+                hflip.setSelected(cutIsSelected);
+                hflip.setOnTouchListener(new View.OnTouchListener()
+                {
+
+                    @Override
+                    public boolean onTouch(View v, MotionEvent event)
+                    {
+                        if (event.getAction() == MotionEvent.ACTION_UP)
+                        {
+                            v.setSelected(!v.isSelected());
+                            cutIsSelected = v.isSelected();
+
                             return true;
                         }
                         return false;

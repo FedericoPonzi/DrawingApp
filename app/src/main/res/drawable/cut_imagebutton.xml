@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:drawable="@drawable/gommaactiv"
+    <item android:drawable="@drawable/cut_a"
           android:state_selected="true" />
-    <item android:drawable="@drawable/gomma"
+    <item android:drawable="@drawable/cut"
           android:state_selected="false" />
-    <item android:drawable="@drawable/gomma" />
+    <item android:drawable="@drawable/cut" />
 </selector>
