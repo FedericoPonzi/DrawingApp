@@ -152,7 +152,7 @@ public class DrawingActivity extends AppCompatActivity
                         {
                             v.setSelected(!v.isSelected());
                             verticalFlipisSelected = v.isSelected();
-
+                            drawingView.setVerticalFlip(verticalFlipisSelected);
                             return true;
                         }
                         return false;
@@ -168,21 +168,24 @@ public class DrawingActivity extends AppCompatActivity
                     @Override
                     public boolean onTouch(View v, MotionEvent event)
                     {
+
                         if (event.getAction() == MotionEvent.ACTION_UP)
                         {
+                            Log.v(LOG_TAG, "HorizontalFlip: " + horizontalFlipisSelected);
                             v.setSelected(!v.isSelected());
                             horizontalFlipisSelected = v.isSelected();
-
+                            drawingView.setHorizontalFlip(horizontalFlipisSelected);
                             return true;
                         }
+
                         return false;
 
                     }
                 });
 
                 ImageButton cut = (ImageButton) z.findViewById(R.id.cut_ib);
-                hflip.setSelected(cutIsSelected);
-                hflip.setOnTouchListener(new View.OnTouchListener()
+                cut.setSelected(cutIsSelected);
+                cut.setOnTouchListener(new View.OnTouchListener()
                 {
 
                     @Override
@@ -291,7 +294,8 @@ public class DrawingActivity extends AppCompatActivity
             {
                 Log.e(LOG_TAG, "Unable to get drawing cache ");
             }
-            drawingView.getBitmap().compress(Bitmap.CompressFormat.PNG, 90, fOut);
+            //drawingView.getBitmap().compress(Bitmap.CompressFormat.PNG, 90, fOut);
+            drawingView.getDrawingCache().compress(Bitmap.CompressFormat.PNG, 90, fOut);
             //drawingView.getDrawingCache()
             //        .compress(Bitmap.CompressFormat.PNG, 90, fOut);
 

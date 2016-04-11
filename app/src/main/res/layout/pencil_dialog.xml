@@ -56,14 +56,26 @@
                 android:id="@+id/verticalflip_ib"
                 android:layout_width="36dp"
                 android:layout_height="36dp"
-
                 android:background="@color/white"
                 android:scaleType="fitXY"
                 android:src="@drawable/verticalflip_imagebutton"
                 />
         </FrameLayout>
 
-
+        <FrameLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1">
+            <ImageButton
+                android:id="@+id/horizontalflip_ib"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:background="@color/white"
+                android:focusableInTouchMode="true"
+                android:scaleType="fitXY"
+                android:src="@drawable/horizontalflip_imagebutton"
+                />
+        </FrameLayout>
 
         <FrameLayout
             android:layout_width="0dp"
@@ -71,27 +83,13 @@
             android:layout_weight="1">
 
             <ImageButton
-                android:id="@+id/horizontalflip_ib"
+                android:id="@+id/cut_ib"
                 android:layout_width="36dp"
                 android:layout_height="36dp"
                 android:background="@color/white"
                 android:scaleType="fitXY"
-                android:src="@drawable/horizontalflip_imagebutton"
+                android:src="@drawable/cut_imagebutton"
                 />
         </FrameLayout>
-        <FrameLayout
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1">
-
-        <ImageButton
-            android:id="@+id/cut_ib"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
-            android:background="@color/white"
-            android:scaleType="fitXY"
-            android:src="@drawable/cut_imagebutton"
-            />
-    </FrameLayout>
     </LinearLayout>
 </LinearLayout>
