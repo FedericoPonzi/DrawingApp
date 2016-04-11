@@ -139,8 +139,8 @@ public class DrawingActivity extends AppCompatActivity
 
                     }
                 });
-
-                ImageButton vflip = (ImageButton) z.findViewById(R.id.verticalflip_ib);
+                //TODO: Nomi scambiati. LOL
+                ImageButton vflip = (ImageButton) z.findViewById(R.id.horizontalflip_ib);
                 vflip.setSelected(verticalFlipisSelected);
                 vflip.setOnTouchListener(new View.OnTouchListener()
                 {
@@ -160,7 +160,7 @@ public class DrawingActivity extends AppCompatActivity
                     }
                 });
 
-                ImageButton hflip = (ImageButton) z.findViewById(R.id.horizontalflip_ib);
+                ImageButton hflip = (ImageButton) z.findViewById(R.id.verticalflip_ib);
                 hflip.setSelected(horizontalFlipisSelected);
                 hflip.setOnTouchListener(new View.OnTouchListener()
                 {
