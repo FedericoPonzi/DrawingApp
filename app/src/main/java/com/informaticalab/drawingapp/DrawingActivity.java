@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.annotation.ColorInt;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Html;
@@ -19,13 +20,14 @@ import com.getbase.floatingactionbutton.FloatingActionButton;
 import com.getbase.floatingactionbutton.FloatingActionsMenu;
 import com.informaticalab.drawingapp.views.DrawingView;
 import com.rey.material.widget.Slider;
+import com.thebluealliance.spectrum.SpectrumPalette;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
-public class DrawingActivity extends AppCompatActivity
+public class DrawingActivity extends AppCompatActivity implements SpectrumPalette.OnColorSelectedListener
 {
     public static final String IMAGE_PATH = "IMAGE_PATH_TO_LOAD";
     private static final String LOG_TAG = DrawingActivity.class.getSimpleName();
@@ -36,9 +38,9 @@ public class DrawingActivity extends AppCompatActivity
     private FloatingActionsMenu fabMenu;
     private FloatingActionsMenu fabMenuTwo;
     private FloatingActionButton export;
-    private FloatingActionButton pencilDialog;
+    private FloatingActionButton pencilFab;
     private String mCurrentPhotoPath;
-
+    private MaterialDialog pencilDialog;
 
     private boolean onRubberisSelected = false; //TODO: Salvare nella savedinstancestate.
     private boolean verticalFlipisSelected = false; //TODO: Salvare nella savedinstancestate.
@@ -75,8 +77,10 @@ public class DrawingActivity extends AppCompatActivity
         undo = (FloatingActionButton) findViewById(R.id.undo_fab);
         redo = (FloatingActionButton) findViewById(R.id.redo_fab);
         trash = (FloatingActionButton) findViewById(R.id.trash_fab);
-        pencilDialog = (FloatingActionButton) findViewById(R.id.pencil_fab);
-        pencilDialog.setOnClickListener(new View.OnClickListener()
+        pencilFab = (FloatingActionButton) findViewById(R.id.pencil_fab);
+
+
+        pencilFab.setOnClickListener(new View.OnClickListener()
         {
             @Override
             public void onClick(View v)
@@ -94,8 +98,8 @@ public class DrawingActivity extends AppCompatActivity
                                         fabMenu.collapseImmediately();
                                     }
                                 });
-                MaterialDialog z = i.build();
-                com.rey.material.widget.Slider slider = (com.rey.material.widget.Slider) z
+                pencilDialog = i.build();
+                com.rey.material.widget.Slider slider = (com.rey.material.widget.Slider) pencilDialog
                         .findViewById(
                                 R.id.slider);
                 Log.i(LOG_TAG, "Last brush size: " + drawingView.getBrushSize());
@@ -111,14 +115,7 @@ public class DrawingActivity extends AppCompatActivity
                     }
                 });
 
-                ImageButton rubber = (ImageButton) z.findViewById(R.id.rubber_imagebutton);
-                rubber.setOnClickListener(new View.OnClickListener()
-                {
-
-                    public void onClick(View v)
-                    {
-                    }
-                });
+                ImageButton rubber = (ImageButton) pencilDialog.findViewById(R.id.rubber_imagebutton);
 
                 rubber.setSelected(onRubberisSelected);
                 rubber.setOnTouchListener(new View.OnTouchListener()
@@ -139,8 +136,11 @@ public class DrawingActivity extends AppCompatActivity
 
                     }
                 });
+
+
+
                 //TODO: Nomi scambiati. LOL
-                ImageButton vflip = (ImageButton) z.findViewById(R.id.horizontalflip_ib);
+                ImageButton vflip = (ImageButton) pencilDialog.findViewById(R.id.horizontalflip_ib);
                 vflip.setSelected(verticalFlipisSelected);
                 vflip.setOnTouchListener(new View.OnTouchListener()
                 {
@@ -160,7 +160,7 @@ public class DrawingActivity extends AppCompatActivity
                     }
                 });
 
-                ImageButton hflip = (ImageButton) z.findViewById(R.id.verticalflip_ib);
+                ImageButton hflip = (ImageButton) pencilDialog.findViewById(R.id.verticalflip_ib);
                 hflip.setSelected(horizontalFlipisSelected);
                 hflip.setOnTouchListener(new View.OnTouchListener()
                 {
@@ -183,7 +183,7 @@ public class DrawingActivity extends AppCompatActivity
                     }
                 });
 
-                ImageButton cut = (ImageButton) z.findViewById(R.id.cut_ib);
+                ImageButton cut = (ImageButton) pencilDialog.findViewById(R.id.cut_ib);
                 cut.setSelected(cutIsSelected);
                 cut.setOnTouchListener(new View.OnTouchListener()
                 {
@@ -202,7 +202,12 @@ public class DrawingActivity extends AppCompatActivity
 
                     }
                 });
-                z.show();
+                SpectrumPalette spectrumPalette = (SpectrumPalette) pencilDialog.findViewById(R.id.palette);
+                int[] colors = getResources().getIntArray(R.array.demo_colors);
+                spectrumPalette.setColors(colors);
+                spectrumPalette.setOnColorSelectedListener(DrawingActivity.this
+                );
+                pencilDialog.show();
             }
         });
         export.setOnClickListener(new View.OnClickListener()
@@ -270,7 +275,16 @@ public class DrawingActivity extends AppCompatActivity
             drawingView.addImage(path);
         }
     }
-
+    @Override
+    public void onColorSelected(@ColorInt int color)
+    {
+        pencilFab.setColorNormal(color);
+        drawingView.setColor(color);
+        if (pencilDialog.isShowing())
+        {
+            pencilDialog.dismiss();
+        }
+    }
 
     private void shareImage()
     {

@@ -69,12 +69,27 @@ public class DrawingView extends View
         super(context, attrs);
         init();
     }
+    public void setColor(int color)
+    {
+
+        this.paintColor = color;
+
+        drawPaint = new Paint();
+        drawPath.setPaint(drawPaint);
+        drawPaint.setColor(paintColor);
+        drawPaint.setAntiAlias(true);
+        drawPaint.setStrokeWidth(brushSize);
+        drawPaint.setStyle(Paint.Style.STROKE);
+        drawPaint.setStrokeJoin(Paint.Join.ROUND);
+        drawPaint.setStrokeCap(Paint.Cap.ROUND);
+    }
 
     private void init()
     {
-        brushSize = getResources().getInteger(R.integer.small_size);
+        brushSize = 20;
 
         drawPaint = new Paint();
+
         drawPaint.setColor(paintColor);
         drawPaint.setAntiAlias(true);
         drawPaint.setStrokeWidth(brushSize);
@@ -163,7 +178,8 @@ public class DrawingView extends View
 
             //canvas.drawPath(p, p.getPaint());
         }
-        canvas.drawPath(drawPath, drawPath.getPaint());
+        drawPath.drawPath(canvas);
+        //canvas.drawPath(drawPath, drawPath.getPaint());
     }
 
     private int bitmapWidth;
@@ -269,7 +285,6 @@ public class DrawingView extends View
      */
     public void setBrushSize(float newSize)
     {
-        drawPath = new SpecularPath(drawPaint);
         float pixelAmount = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
                                                       newSize, getResources().getDisplayMetrics());
         brushSize = newSize;

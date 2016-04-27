@@ -4,18 +4,11 @@
               android:layout_width="match_parent"
               android:layout_height="match_parent"
               android:orientation="vertical"
+              android:gravity="center"
               android:paddingLeft="4dp">
 
-    <TextView
-        android:id="@+id/text_view_brush_size"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:paddingLeft="5dp"
-        android:text="Scegli la dimensione della matita:"
-        />
-
-
     <com.rey.material.widget.Slider
+        android:paddingTop="5dp"
         android:id="@+id/slider"
         style="@style/Material.Widget.Slider"
         android:layout_width="match_parent"
@@ -27,69 +20,65 @@
         app:sl_value="5"/>
 
     <LinearLayout
+        android:paddingTop="5dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="center"
         android:orientation="horizontal">
-
-        <FrameLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1">
 
             <ImageButton
                 android:id="@+id/rubber_imagebutton"
                 android:layout_width="36dp"
                 android:layout_height="36dp"
-                android:layout_alignParentLeft="true"
                 android:background="@color/white"
                 android:scaleType="fitXY"
+                android:layout_marginRight="22dp"
                 android:src="@drawable/rubber_imagebutton"
                 />
-        </FrameLayout>
 
-        <FrameLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1">
 
             <ImageButton
                 android:id="@+id/verticalflip_ib"
                 android:layout_width="36dp"
                 android:layout_height="36dp"
+                android:layout_marginRight="22dp"
+
                 android:background="@color/white"
                 android:scaleType="fitXY"
                 android:src="@drawable/verticalflip_imagebutton"
                 />
-        </FrameLayout>
 
-        <FrameLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1">
             <ImageButton
                 android:id="@+id/horizontalflip_ib"
                 android:layout_width="36dp"
                 android:layout_height="36dp"
+                android:layout_marginRight="22dp"
+
                 android:background="@color/white"
                 android:focusableInTouchMode="true"
                 android:scaleType="fitXY"
                 android:src="@drawable/horizontalflip_imagebutton"
                 />
-        </FrameLayout>
-
-        <FrameLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1">
-
             <ImageButton
                 android:id="@+id/cut_ib"
                 android:layout_width="36dp"
                 android:layout_height="36dp"
+                android:layout_marginRight="5dp"
+
                 android:background="@color/white"
                 android:scaleType="fitXY"
                 android:src="@drawable/cut_imagebutton"
                 />
-        </FrameLayout>
     </LinearLayout>
+
+    <com.thebluealliance.spectrum.SpectrumPalette
+        android:id="@+id/palette"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="5dp"
+        app:spectrum_autoPadding="true"
+        app:spectrum_columnCount="4"
+        app:spectrum_outlineWidth="2dp" />
+
 </LinearLayout>
