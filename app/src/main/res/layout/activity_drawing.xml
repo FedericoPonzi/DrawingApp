@@ -69,6 +69,21 @@
         fab:fab_addButtonColorNormal="@color/white"
         fab:fab_addButtonColorPressed="@color/white_pressed"
         fab:fab_addButtonPlusIconColor="@color/half_black">
+        <com.github.clans.fab.FloatingActionMenu
+            android:id="@+id/menu_yellow"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="80dp"
+            android:layout_marginBottom="10dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="10dp"
+            fab:menu_shadowColor="#444"
+            fab:menu_colorNormal="#FFB805"
+            fab:menu_colorPressed="#F2AB00"
+            fab:menu_colorRipple="#D99200" />
+
         <com.getbase.floatingactionbutton.FloatingActionButton
             android:id="@+id/pencil_fab"
             android:layout_width="wrap_content"

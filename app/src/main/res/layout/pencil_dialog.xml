@@ -76,9 +76,9 @@
         android:id="@+id/palette"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+
         android:paddingTop="5dp"
         app:spectrum_autoPadding="true"
-        app:spectrum_columnCount="4"
-        app:spectrum_outlineWidth="2dp" />
+        app:spectrum_columnCount="4" />
 
 </LinearLayout>
