@@ -195,7 +195,7 @@ public class DrawingActivity extends AppCompatActivity implements SpectrumPalett
                         {
                             v.setSelected(!v.isSelected());
                             cutIsSelected = v.isSelected();
-
+                            drawingView.toggleGrid();
                             return true;
                         }
                         return false;
@@ -275,6 +275,7 @@ public class DrawingActivity extends AppCompatActivity implements SpectrumPalett
             drawingView.addImage(path);
         }
     }
+
     @Override
     public void onColorSelected(@ColorInt int color)
     {

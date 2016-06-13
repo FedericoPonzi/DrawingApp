@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.design.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:fab="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"        xmlns:fab="http://schemas.android.com/apk/res-auto"
-
+    android:layout_height="match_parent"
     android:fitsSystemWindows="true"
     tools:context="com.informaticalab.drawingapp.DrawingActivity">
 
@@ -21,18 +21,19 @@
         android:layout_marginBottom="16dp"
         android:layout_marginEnd="16dp"
         android:layout_marginRight="16dp"
-        fab:fab_expandDirection="left"
         fab:fab_addButtonColorNormal="@color/white"
         fab:fab_addButtonColorPressed="@color/white_pressed"
-        fab:fab_addButtonPlusIconColor="@color/half_black">
+        fab:fab_addButtonPlusIconColor="@color/half_black"
+        fab:fab_expandDirection="left">
+
         <com.getbase.floatingactionbutton.FloatingActionButton
             android:id="@+id/trash_fab"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             fab:fab_colorNormal="@android:color/darker_gray"
             fab:fab_colorPressed="@color/white_pressed"
-            fab:fab_size="mini"
-            fab:fab_icon="@drawable/trash" />
+            fab:fab_icon="@drawable/trash"
+            fab:fab_size="mini"/>
 
         <com.getbase.floatingactionbutton.FloatingActionButton
             android:id="@+id/undo_fab"
@@ -40,9 +41,8 @@
             android:layout_height="wrap_content"
             fab:fab_colorNormal="@color/sapienza"
             fab:fab_colorPressed="@color/white_pressed"
-            fab:fab_size="mini"
-            fab:fab_icon="@drawable/undo"/>
-
+            fab:fab_icon="@drawable/undo"
+            fab:fab_size="mini"/>
 
 
         <com.getbase.floatingactionbutton.FloatingActionButton
@@ -51,8 +51,8 @@
             android:layout_height="wrap_content"
             fab:fab_colorNormal="@color/sapienza"
             fab:fab_colorPressed="@color/white_pressed"
-            fab:fab_size="mini"
-            fab:fab_icon="@drawable/redo" />
+            fab:fab_icon="@drawable/redo"
+            fab:fab_size="mini"/>
 
     </com.getbase.floatingactionbutton.FloatingActionsMenu>
 
@@ -69,20 +69,6 @@
         fab:fab_addButtonColorNormal="@color/white"
         fab:fab_addButtonColorPressed="@color/white_pressed"
         fab:fab_addButtonPlusIconColor="@color/half_black">
-        <com.github.clans.fab.FloatingActionMenu
-            android:id="@+id/menu_yellow"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentRight="true"
-            android:layout_marginRight="80dp"
-            android:layout_marginBottom="10dp"
-            android:layout_marginLeft="10dp"
-            android:layout_marginTop="10dp"
-            fab:menu_shadowColor="#444"
-            fab:menu_colorNormal="#FFB805"
-            fab:menu_colorPressed="#F2AB00"
-            fab:menu_colorRipple="#D99200" />
 
         <com.getbase.floatingactionbutton.FloatingActionButton
             android:id="@+id/pencil_fab"
@@ -90,14 +76,15 @@
             android:layout_height="wrap_content"
             fab:fab_colorNormal="@color/sapienza"
             fab:fab_colorPressed="@color/white_pressed"
-            fab:fab_icon="@drawable/pencil" />
+            fab:fab_icon="@drawable/pencil"/>
+
         <com.getbase.floatingactionbutton.FloatingActionButton
             android:id="@+id/export_fab"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             fab:fab_colorNormal="@color/sapienza"
             fab:fab_colorPressed="@color/white_pressed"
-            fab:fab_icon="@drawable/export" />
+            fab:fab_icon="@drawable/export"/>
 
 
     </com.getbase.floatingactionbutton.FloatingActionsMenu>

@@ -6,7 +6,6 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Path;
 import android.graphics.PorterDuff;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
@@ -16,6 +15,8 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import com.informaticalab.drawingapp.R;
+import com.informaticalab.drawingapp.views.util.PathWithPaint;
+import com.informaticalab.drawingapp.views.util.SpecularPath;
 
 import java.util.ArrayList;
 
@@ -63,16 +64,26 @@ public class DrawingView extends View
     private float brushSize;
     private float mX;
     private float mY;
+    private boolean isGridVisible = false;
+    private PathWithPaint test;
+    private ArrayList<SpecularPath> gridPaths = new ArrayList<>();
 
     public DrawingView(Context context, AttributeSet attrs)
     {
         super(context, attrs);
         init();
     }
+
     public void setColor(int color)
     {
 
         this.paintColor = color;
+
+        //Is is erase, save the selected color but not set it now.
+        if (erase)
+        {
+            return;
+        }
 
         drawPaint = new Paint();
         drawPath.setPaint(drawPaint);
@@ -84,8 +95,21 @@ public class DrawingView extends View
         drawPaint.setStrokeCap(Paint.Cap.ROUND);
     }
 
+    private Paint gridPaint;
+
     private void init()
     {
+
+        gridPaint = new Paint();
+        gridPaint.setColor(ContextCompat.getColor(getContext(), R.color.half_black));
+        gridPaint.setAntiAlias(true);
+        gridPaint.setStrokeWidth(5);
+        gridPaint.setStyle(Paint.Style.STROKE);
+        gridPaint.setStrokeJoin(Paint.Join.ROUND);
+        gridPaint.setStrokeCap(Paint.Cap.ROUND);
+        gridPaint.setXfermode(null);
+
+
         brushSize = 20;
 
         drawPaint = new Paint();
@@ -178,6 +202,14 @@ public class DrawingView extends View
 
             //canvas.drawPath(p, p.getPaint());
         }
+        if (isGridVisible)
+        {
+            for (SpecularPath p : gridPaths)
+            {
+                p.drawPath(canvas);
+            }
+        }
+
         drawPath.drawPath(canvas);
         //canvas.drawPath(drawPath, drawPath.getPaint());
     }
@@ -188,6 +220,7 @@ public class DrawingView extends View
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh)
     {
+        Log.v(LOG_TAG, "On Size Changed called");
         //create canvas of certain device size.
         super.onSizeChanged(w, h, oldw, oldh);
         bitmapHeight = h;
@@ -204,6 +237,18 @@ public class DrawingView extends View
         //apply bitmap to graphic to start drawing.
         drawCanvas = new Canvas(canvasBitmap);
 
+        gridPaths = new ArrayList<>();
+        Log.v(LOG_TAG, "Size e width: " + bitmapWidth + " h:" + bitmapHeight);
+        for (int i = 0; i < bitmapWidth; i += 25)
+        {
+            Log.v(LOG_TAG, "Creo griglia:" + i);
+            SpecularPath p = new SpecularPath(gridPaint, false, false, halfHorizontal,
+                                              halfVertical);
+            p.moveTo(i, 0);
+            p.quadTo(i, 0, i, bitmapHeight);
+            p.lineTo(i, bitmapHeight);
+            gridPaths.add(p);
+        }
         //drawCanvas.drawColor(ContextCompat.getColor(getContext(), android.R.color.white));
     }
 
@@ -248,12 +293,11 @@ public class DrawingView extends View
     private void touch_start(float x, float y)
     {
         undonePaths.clear();
-        drawPath = new SpecularPath(drawPaint, mirrorVertical, mirrorHorizontal);
+        drawPath = new SpecularPath(drawPaint, mirrorVertical, mirrorHorizontal, halfHorizontal,
+                                    halfVertical);
         drawPath.moveTo(x, y);
         mX = x;
         mY = y;
-
-
     }
 
     private void touch_move(float x, float y)
@@ -347,7 +391,6 @@ public class DrawingView extends View
             erase = true;
             Log.i(LOG_TAG, "in erase mode");
             drawPaint = new Paint();
-            colorBeforeErase = drawPaint.getColor();
             drawPaint.setColor(Color.WHITE);
             drawPaint.setAntiAlias(true);
             drawPaint.setStrokeWidth(brushSize);
@@ -375,195 +418,11 @@ public class DrawingView extends View
         this.mirrorHorizontal = horizontalFlip;
     }
 
-
-    private class SpecularPath extends PathWithPaint
+    public void toggleGrid()
     {
-        Path mirrorHorizontalDrawPath;
-        Path mirrorVerticalDrawPath;
-        boolean isMirrorVertical = false;
-        boolean isMirrorHorizontal = false;
+        isGridVisible = !isGridVisible;
+        invalidate();
+        Log.i(LOG_TAG, "togglegrid:" + isGridVisible);
 
-        public SpecularPath(Paint p)
-        {
-            super(p);
-
-        }
-
-        public SpecularPath(Paint p, boolean isMirrorVertical, boolean isMirrorHorizontal)
-        {
-            super(p);
-            Log.d(LOG_TAG, "Half: " + halfHorizontal);
-
-            this.isMirrorVertical = isMirrorVertical;
-            this.isMirrorHorizontal = isMirrorHorizontal;
-            if (isMirrorHorizontal)
-            {
-                this.mirrorHorizontalDrawPath = new PathWithPaint(p);
-            }
-            if (isMirrorVertical)
-            {
-                this.mirrorVerticalDrawPath = new PathWithPaint(p);
-            }
-        }
-
-        @Override
-        public void lineTo(float x, float y)
-        {
-            super.lineTo(x, y);
-            if (isMirrorVertical)
-            {
-                float mVy = 0;
-                if (y < halfVertical)
-                {
-                    mVy = halfVertical + Math.abs(halfVertical - y);
-                }
-                else
-                {
-                    mVy = halfVertical - Math.abs(halfVertical - y);
-                }
-                mirrorVerticalDrawPath.lineTo(x, mVy);
-            }
-            if (isMirrorHorizontal)
-            {
-                float mHx = 0;
-                if (x < halfHorizontal)
-                {
-                    mHx = halfHorizontal + Math.abs(halfHorizontal - x);
-                }
-                else
-                {
-                    mHx = halfHorizontal - Math.abs(halfHorizontal - x);
-                }
-                mirrorHorizontalDrawPath.lineTo(mHx, y);
-            }
-        }
-
-        @Override
-        public void moveTo(float x, float y)
-        {
-            super.moveTo(x, y);
-            if (isMirrorHorizontal)
-            {
-                if (x < halfHorizontal)
-                {
-                    mirrorHorizontalDrawPath.moveTo(halfHorizontal + Math.abs(halfHorizontal - x),
-                                                    y);
-                }
-                else
-                {
-                    mirrorHorizontalDrawPath.moveTo(halfHorizontal - Math.abs(halfHorizontal - x),
-                                                    y);
-                }
-            }
-            if (isMirrorVertical)
-            {
-                if (y < halfVertical)
-                {
-                    mirrorVerticalDrawPath.moveTo(x, halfVertical + Math.abs(halfVertical - y));
-                }
-                else
-                {
-                    mirrorVerticalDrawPath.moveTo(x, halfVertical - Math.abs(halfVertical - y));
-                }
-
-            }
-        }
-
-        @Override
-        public void quadTo(float x1, float y1, float x2, float y2)
-        {
-            //mX, mY, (x + mX) / 2, (y + mY) / 2
-            super.quadTo(x1, y1, x2, y2);
-            if (isMirrorHorizontal)
-            {
-                float mHx1;
-                float mHx2;
-
-                if (x1 < halfHorizontal)
-                {
-                    mHx1 = halfHorizontal + Math.abs(halfHorizontal - x1);
-                }
-                else
-                {
-                    mHx1 = halfHorizontal - Math.abs(halfHorizontal - x1);
-                }
-
-                if (x2 < halfHorizontal)
-                {
-                    mHx2 = halfHorizontal + Math.abs(halfHorizontal - x2);
-                }
-                else
-                {
-                    mHx2 = halfHorizontal - Math.abs(halfHorizontal - x2);
-                }
-
-                mirrorHorizontalDrawPath.quadTo(mHx1,
-                                                y1, mHx2,
-                                                y2);
-            }
-            if (isMirrorVertical)
-            {
-                float mVy1;
-                float mVy2;
-
-                if (y1 < halfVertical)
-                {
-                    mVy1 = halfVertical + Math.abs(halfVertical - y1);
-                }
-                else
-                {
-                    mVy1 = halfVertical - Math.abs(halfVertical - y1);
-                }
-
-                if (y2 < halfVertical)
-                {
-                    mVy2 = halfVertical + Math.abs(halfVertical - y2);
-                }
-                else
-                {
-                    mVy2 = halfVertical - Math.abs(halfVertical - y2);
-                }
-
-                mirrorVerticalDrawPath.quadTo(x1,
-                                              mVy1, x2,
-                                              mVy2);
-
-            }
-        }
-
-        public void drawPath(Canvas canvas)
-        {
-            canvas.drawPath(this, this.p);
-            if (isMirrorHorizontal)
-            {
-                canvas.drawPath(this.mirrorHorizontalDrawPath, this.p);
-            }
-            if (isMirrorVertical)
-            {
-                canvas.drawPath(this.mirrorVerticalDrawPath, this.p);
-            }
-        }
     }
-
-    private class PathWithPaint extends Path
-    {
-
-        Paint p;
-
-        public void setPaint(Paint p)
-        {
-            this.p = p;
-        }
-
-        public Paint getPaint()
-        {
-            return p;
-        }
-
-        public PathWithPaint(Paint p)
-        {
-            this.p = p;
-        }
-    }
-
 }
