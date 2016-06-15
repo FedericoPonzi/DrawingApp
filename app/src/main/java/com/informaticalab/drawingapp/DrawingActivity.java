@@ -1,5 +1,6 @@
 package com.informaticalab.drawingapp;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -7,6 +8,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.ColorInt;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Html;
 import android.util.Log;
@@ -286,7 +288,42 @@ public class DrawingActivity extends AppCompatActivity implements SpectrumPalett
             pencilDialog.dismiss();
         }
     }
+    @Override
+    public void onBackPressed()
+    {
 
+        //Sicuro che vuoi uscire?
+        if (drawingView.isEdited())
+        {
+            final AlertDialog.Builder alert = new AlertDialog.Builder(this);
+            alert.setMessage(getString(R.string.alert_added_content_message));
+
+            alert.setPositiveButton(getString(R.string.itsok), new DialogInterface
+                    .OnClickListener()
+            {
+                @Override
+                public void onClick(DialogInterface dialog, int which)
+                {
+                    DrawingActivity.super.onBackPressed();
+                }
+            });
+            alert.setNegativeButton(getString(R.string.wait), new DialogInterface
+                    .OnClickListener()
+            {
+                @Override
+                public void onClick(DialogInterface dialog, int which)
+                {
+                    dialog.dismiss();
+                }
+            });
+            alert.create().show();
+        }
+        else
+        {
+            super.onBackPressed();
+        }
+
+    }
     private void shareImage()
     {
         try

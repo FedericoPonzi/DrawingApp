@@ -20,5 +20,8 @@
     <string name="dialog_trash_title">Delete everything</string>
     <string name="yes">yes</string>
     <string name="no">no</string>
+    <string name="itsok">It\'s ok</string>
+    <string name="wait">Wait</string>
     <string name="dialog_trash_message">Are you sure?&lt;br&gt; &lt;small&gt;Clicking on yes will delete unsaved changes. &lt;/small&gt;</string>
+    <string name="alert_added_content_message">You will lose unsaved changes to your beautiful drawing if you go back</string>
 </resources>

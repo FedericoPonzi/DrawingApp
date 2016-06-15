@@ -72,7 +72,10 @@ public class DrawingView extends View
         super(context, attrs);
         init();
     }
-
+    public boolean isEdited()
+    {
+        return paths.size() > 0;
+    }
     public void setColor(int color)
     {
 
