@@ -39,7 +39,7 @@
             android:id="@+id/undo_fab"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            fab:fab_colorNormal="@color/sapienza"
+            fab:fab_colorNormal="@color/primary"
             fab:fab_colorPressed="@color/white_pressed"
             fab:fab_icon="@drawable/undo"
             fab:fab_size="mini"/>
@@ -49,7 +49,7 @@
             android:id="@+id/redo_fab"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            fab:fab_colorNormal="@color/sapienza"
+            fab:fab_colorNormal="@color/primary"
             fab:fab_colorPressed="@color/white_pressed"
             fab:fab_icon="@drawable/redo"
             fab:fab_size="mini"/>
@@ -74,7 +74,7 @@
             android:id="@+id/pencil_fab"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            fab:fab_colorNormal="@color/sapienza"
+            fab:fab_colorNormal="@color/primary"
             fab:fab_colorPressed="@color/white_pressed"
             fab:fab_icon="@drawable/pencil"/>
 
@@ -82,7 +82,7 @@
             android:id="@+id/export_fab"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            fab:fab_colorNormal="@color/sapienza"
+            fab:fab_colorNormal="@color/primary"
             fab:fab_colorPressed="@color/white_pressed"
             fab:fab_icon="@drawable/export"/>
 

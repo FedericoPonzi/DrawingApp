@@ -9,6 +9,7 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.Html;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -167,7 +168,7 @@ public class MainActivity extends AppCompatActivity
         {
             new MaterialDialog.Builder(this)
                     .title(R.string.about_title)
-                    .content(R.string.about_content)
+                    .content(Html.fromHtml(getString(R.string.about_content)))
                     .positiveText(R.string.cool)
                     .show();
             return true;

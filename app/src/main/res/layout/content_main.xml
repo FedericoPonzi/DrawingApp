@@ -9,7 +9,7 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    android:background="@color/sapienza"
+    android:background="@color/primary"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context="com.informaticalab.drawingapp.MainActivity"
     tools:showIn="@layout/activity_main">

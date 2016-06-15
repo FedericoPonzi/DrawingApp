@@ -48,7 +48,7 @@ public class DrawingView extends View
     private Paint drawPaint;
 
     //initial color
-    private int paintColor = ContextCompat.getColor(getContext(), R.color.sapienza);
+    private int paintColor = ContextCompat.getColor(getContext(), R.color.primary);
 
     //canvas - holding pen, holds your drawings
     //and transfers them to the view
