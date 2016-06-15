@@ -15,7 +15,6 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import com.informaticalab.drawingapp.R;
-import com.informaticalab.drawingapp.views.util.PathWithPaint;
 import com.informaticalab.drawingapp.views.util.SpecularPath;
 
 import java.util.ArrayList;
@@ -65,7 +64,7 @@ public class DrawingView extends View
     private float mX;
     private float mY;
     private boolean isGridVisible = false;
-    private PathWithPaint test;
+
     private ArrayList<SpecularPath> gridPaths = new ArrayList<>();
 
     public DrawingView(Context context, AttributeSet attrs)
@@ -160,6 +159,7 @@ public class DrawingView extends View
     }
 
     /**
+     * Resize the photo before showing it on the canvas.
      * TODO: verificare che la path sia presente  priam di provare a fare decode.
      */
     private void resizePhoto()
@@ -187,6 +187,10 @@ public class DrawingView extends View
 
     }
 
+    /**
+     * Main draw method.
+     * @param canvas
+     */
     @Override
     protected void onDraw(Canvas canvas)
     {
@@ -247,6 +251,16 @@ public class DrawingView extends View
             p.moveTo(i, 0);
             p.quadTo(i, 0, i, bitmapHeight);
             p.lineTo(i, bitmapHeight);
+            gridPaths.add(p);
+        }
+        for (int i = 0; i < bitmapHeight; i += 25)
+        {
+            Log.v(LOG_TAG, "Creo griglia:" + i);
+            SpecularPath p = new SpecularPath(gridPaint, false, false, halfHorizontal,
+                                              halfVertical);
+            p.moveTo(0, i);
+            p.quadTo(0, i, bitmapWidth, i);
+            p.lineTo(bitmapWidth, i);
             gridPaths.add(p);
         }
         //drawCanvas.drawColor(ContextCompat.getColor(getContext(), android.R.color.white));
@@ -344,11 +358,6 @@ public class DrawingView extends View
 
     }
 
-    public float getBrushSize()
-    {
-        return brushSize;
-    }
-
 
     public void onClickUndo()
     {
@@ -400,6 +409,11 @@ public class DrawingView extends View
         }
     }
 
+
+    public float getBrushSize()
+    {
+        return brushSize;
+    }
 
     public Bitmap getBitmap()
     {
