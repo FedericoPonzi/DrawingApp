@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">SAPP</string>
+    <string name="app_name">SAPP Design</string>
     <string name="title_activity_splash_screen">SplashScreen</string>
     <string name="action_about">About</string>
     <string name="cool">Cool!</string>

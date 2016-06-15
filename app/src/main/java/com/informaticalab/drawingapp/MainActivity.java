@@ -16,7 +16,7 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.afollestad.materialdialogs.MaterialDialog;
-import com.getbase.floatingactionbutton.FloatingActionButton;
+import com.github.clans.fab.FloatingActionButton;
 
 import java.io.File;
 import java.io.IOException;
