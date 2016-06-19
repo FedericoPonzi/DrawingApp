@@ -102,6 +102,9 @@ public class DrawingView extends View
     private void init()
     {
 
+        /*
+            Setup for the Grid:
+         */
         gridPaint = new Paint();
         gridPaint.setColor(ContextCompat.getColor(getContext(), R.color.half_black));
         gridPaint.setAntiAlias(true);
@@ -111,7 +114,9 @@ public class DrawingView extends View
         gridPaint.setStrokeCap(Paint.Cap.ROUND);
         gridPaint.setXfermode(null);
 
-
+        /*
+         * base brush size
+         */
         brushSize = 20;
 
         drawPaint = new Paint();
