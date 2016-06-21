@@ -24,9 +24,6 @@
     <string name="wait">Wait</string>
     <string name="dialog_trash_message">Are you sure?&lt;br&gt; &lt;small&gt;Clicking on yes will delete unsaved changes. &lt;/small&gt;</string>
     <string name="alert_added_content_message">You will lose unsaved changes to your beautiful drawing if you go back</string>
-
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="error_saving_file">Error saving file in memory.</string>
     <string name="toast_saved">Image saved successfully! Woah!</string>
 </resources>

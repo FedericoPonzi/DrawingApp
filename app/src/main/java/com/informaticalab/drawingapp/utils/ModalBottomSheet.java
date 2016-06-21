@@ -91,7 +91,6 @@ public class ModalBottomSheet extends BottomSheetDialogFragment {
      */
     public interface OnFragmentInteractionListener
     {
-        // TODO: Update argument type and name
         void onShare();
         void onSave();
     }
