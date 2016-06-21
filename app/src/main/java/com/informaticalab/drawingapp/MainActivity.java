@@ -17,6 +17,7 @@ import android.view.View;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.github.clans.fab.FloatingActionButton;
+import com.github.clans.fab.FloatingActionMenu;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,6 +33,8 @@ public class MainActivity extends AppCompatActivity
     String mCurrentPhotoPath;
     static final int REQUEST_TAKE_PHOTO = 1;
     static final int PICK_IMAGE_REQUEST = 2;
+    private FloatingActionMenu fabMenu;
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -39,6 +42,7 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        fabMenu = (FloatingActionMenu) findViewById(R.id.fab_menu);
         fromCameraFAB = (FloatingActionButton) findViewById(R.id.open_from_camera);
         fromScartchFAB = (FloatingActionButton) findViewById(R.id.create_from_scratch);
         fromGalleryFAB = (FloatingActionButton) findViewById(R.id.open_from_gallery);
@@ -93,6 +97,13 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
+    protected void onPause()
+    {
+        super.onPause();
+        fabMenu.close(false);
+    }
+
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data)
     {
         super.onActivityResult(requestCode, resultCode, data);
@@ -101,7 +112,6 @@ public class MainActivity extends AppCompatActivity
             Intent i = new Intent(this, DrawingActivity.class);
             i.putExtra(DrawingActivity.IMAGE_PATH, mCurrentPhotoPath.substring("file:".length())); //Tolgo il prefisso.
             startActivity(i);
-            finish();
         }
         else if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null)
         {
@@ -120,7 +130,6 @@ public class MainActivity extends AppCompatActivity
             Intent i = new Intent(this, DrawingActivity.class);
             i.putExtra(DrawingActivity.IMAGE_PATH, mCurrentPhotoPath);
             startActivity(i);
-            finish();
         }
     }
 

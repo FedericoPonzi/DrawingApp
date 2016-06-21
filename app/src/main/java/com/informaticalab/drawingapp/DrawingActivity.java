@@ -7,6 +7,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.ColorInt;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -15,24 +16,28 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.getbase.floatingactionbutton.FloatingActionButton;
 import com.getbase.floatingactionbutton.FloatingActionsMenu;
+import com.informaticalab.drawingapp.utils.ModalBottomSheet;
 import com.informaticalab.drawingapp.views.DrawingView;
 import com.rey.material.widget.Slider;
 import com.thebluealliance.spectrum.SpectrumPalette;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.OutputStream;
 
-public class DrawingActivity extends AppCompatActivity implements SpectrumPalette.OnColorSelectedListener
+public class DrawingActivity extends AppCompatActivity
+        implements SpectrumPalette.OnColorSelectedListener,
+        ModalBottomSheet.OnFragmentInteractionListener
 {
     public static final String IMAGE_PATH = "IMAGE_PATH_TO_LOAD";
     private static final String LOG_TAG = DrawingActivity.class.getSimpleName();
+    private CoordinatorLayout mCoordinatorLayout;
     private FloatingActionButton undo;
     private FloatingActionButton redo;
     private FloatingActionButton trash;
@@ -41,8 +46,9 @@ public class DrawingActivity extends AppCompatActivity implements SpectrumPalett
     private FloatingActionsMenu fabMenuTwo;
     private FloatingActionButton export;
     private FloatingActionButton pencilFab;
-    private String mCurrentPhotoPath;
+    private File mImageFile;
     private MaterialDialog pencilDialog;
+    private ModalBottomSheet mModalBottomSheet;
 
     private boolean onRubberisSelected = false; //TODO: Salvare nella savedinstancestate.
     private boolean verticalFlipisSelected = false; //TODO: Salvare nella savedinstancestate.
@@ -55,10 +61,15 @@ public class DrawingActivity extends AppCompatActivity implements SpectrumPalett
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_drawing);
         undo = (FloatingActionButton) findViewById(R.id.undo_fab);
-        fabMenu = (FloatingActionsMenu) undo.getParent();
         export = (FloatingActionButton) findViewById(R.id.export_fab);
 
+        fabMenu = (FloatingActionsMenu) undo.getParent();
         fabMenuTwo = (FloatingActionsMenu) export.getParent();
+
+        mModalBottomSheet = new ModalBottomSheet();
+
+        mCoordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinator_layout);
+
 
         fabMenuTwo.setOnFloatingActionsMenuUpdateListener(
                 new FloatingActionsMenu.OnFloatingActionsMenuUpdateListener()
@@ -101,7 +112,8 @@ public class DrawingActivity extends AppCompatActivity implements SpectrumPalett
                                     }
                                 });
                 pencilDialog = i.build();
-                com.rey.material.widget.Slider slider = (com.rey.material.widget.Slider) pencilDialog
+                com.rey.material.widget.Slider slider = (com.rey.material.widget.Slider)
+                        pencilDialog
                         .findViewById(
                                 R.id.slider);
                 Log.i(LOG_TAG, "Last brush size: " + drawingView.getBrushSize());
@@ -117,7 +129,8 @@ public class DrawingActivity extends AppCompatActivity implements SpectrumPalett
                     }
                 });
 
-                ImageButton rubber = (ImageButton) pencilDialog.findViewById(R.id.rubber_imagebutton);
+                ImageButton rubber = (ImageButton) pencilDialog.findViewById(
+                        R.id.rubber_imagebutton);
 
                 rubber.setSelected(onRubberisSelected);
                 rubber.setOnTouchListener(new View.OnTouchListener()
@@ -138,7 +151,6 @@ public class DrawingActivity extends AppCompatActivity implements SpectrumPalett
 
                     }
                 });
-
 
 
                 //TODO: Nomi scambiati. LOL
@@ -204,7 +216,8 @@ public class DrawingActivity extends AppCompatActivity implements SpectrumPalett
 
                     }
                 });
-                SpectrumPalette spectrumPalette = (SpectrumPalette) pencilDialog.findViewById(R.id.palette);
+                SpectrumPalette spectrumPalette = (SpectrumPalette) pencilDialog.findViewById(
+                        R.id.palette);
                 int[] colors = getResources().getIntArray(R.array.demo_colors);
                 spectrumPalette.setColors(colors);
                 spectrumPalette.setOnColorSelectedListener(DrawingActivity.this
@@ -214,10 +227,13 @@ public class DrawingActivity extends AppCompatActivity implements SpectrumPalett
         });
         export.setOnClickListener(new View.OnClickListener()
         {
+
             @Override
             public void onClick(View v)
             {
-                shareImage();
+
+                mModalBottomSheet.show(getSupportFragmentManager(), mModalBottomSheet.getTag());
+
             }
         });
         undo.setOnClickListener(new View.OnClickListener()
@@ -288,6 +304,7 @@ public class DrawingActivity extends AppCompatActivity implements SpectrumPalett
             pencilDialog.dismiss();
         }
     }
+
     @Override
     public void onBackPressed()
     {
@@ -324,54 +341,94 @@ public class DrawingActivity extends AppCompatActivity implements SpectrumPalett
         }
 
     }
+
+    @Override
+    public void onShare()
+    {
+        shareImage();
+        mModalBottomSheet.dismiss();
+    }
+
+    @Override
+    public void onSave()
+    {
+        saveImage();
+        mModalBottomSheet.dismiss();
+    }
+
+
     private void shareImage()
+    {
+        if (!saveImage())
+        {
+            return;
+        }
+        Intent shareIntent = new Intent();
+        shareIntent.setAction(Intent.ACTION_SEND);
+        shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(mImageFile));
+        shareIntent.setType("image/png");
+        shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        startActivity(Intent.createChooser(shareIntent, "Share image"));
+
+
+    }
+
+    private boolean saveImage()
     {
         try
         {
             drawingView.setDrawingCacheEnabled(true);
             drawingView.invalidate();
+
             String path = Environment.getExternalStorageDirectory().toString();
             OutputStream fOut = null;
-            File file = new File(path,
-                                 "android_drawing_app.png");
-            file.getParentFile().mkdirs();
+            File directory = Environment.getExternalStoragePublicDirectory(
+                    Environment.DIRECTORY_PICTURES
+            );
+            if(mImageFile == null)
+            {
+                String filename = "android_drawing_app" + (System.currentTimeMillis() / 1000) + "" + ".png";
+
+                // path to /data/data/yourapp/app_data/imageDir
+                // Create imageDir
+                Log.i(LOG_TAG, "Path: " + directory.getAbsolutePath());
+
+                mImageFile=new File(directory, filename);
+
+                //mImageFile = new File(path,filename);
+                mImageFile.getParentFile().mkdirs();
+
+            }
+            Log.i(LOG_TAG, "Path: " + directory.getAbsolutePath());
 
             //Creo un file tmeporaneo:
-            file.createTempFile("drawingapp", "" + (System.currentTimeMillis() / 1000));
+            //file.createTempFile("drawingapp", "" );
 
-            fOut = new FileOutputStream(file);
+            fOut = new FileOutputStream(mImageFile);
 
 
             if (drawingView.getDrawingCache() == null)
             {
                 Log.e(LOG_TAG, "Unable to get drawing cache ");
+                Toast.makeText(this, R.string.error_saving_file, Toast.LENGTH_LONG).show();
+                return false;
             }
-            //drawingView.getBitmap().compress(Bitmap.CompressFormat.PNG, 90, fOut);
-            drawingView.getDrawingCache().compress(Bitmap.CompressFormat.PNG, 90, fOut);
-            //drawingView.getDrawingCache()
-            //        .compress(Bitmap.CompressFormat.PNG, 90, fOut);
 
+            drawingView.getDrawingCache().compress(Bitmap.CompressFormat.PNG, 90, fOut);
 
             fOut.flush();
             fOut.close();
 
-            Intent shareIntent = new Intent();
-            shareIntent.setAction(Intent.ACTION_SEND);
-            shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(file));
-            shareIntent.setType("image/png");
-            shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            startActivity(Intent.createChooser(shareIntent, "Share image"));
-
-        }
-        catch (IOException e)
-        {
-            Log.e(LOG_TAG, e.getCause() + e.getMessage());
         }
         catch (Exception e)
         {
+            Toast.makeText(this, R.string.error_saving_file, Toast.LENGTH_LONG).show();
             Log.e(LOG_TAG, e.getCause() + e.getMessage());
+            return false;
         }
-
+        Toast.makeText(this, R.string.toast_saved, Toast.LENGTH_LONG).show();
+        galleryAddPic();
+        return true;
 
     }
 
@@ -381,9 +438,9 @@ public class DrawingActivity extends AppCompatActivity implements SpectrumPalett
     private void galleryAddPic()
     {
         Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-        File f = new File(mCurrentPhotoPath);
-        Uri contentUri = Uri.fromFile(f);
+        Uri contentUri = Uri.fromFile(mImageFile);
         mediaScanIntent.setData(contentUri);
         this.sendBroadcast(mediaScanIntent);
     }
+
 }
