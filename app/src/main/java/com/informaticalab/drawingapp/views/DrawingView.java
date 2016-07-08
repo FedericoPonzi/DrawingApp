@@ -32,7 +32,6 @@ public class DrawingView extends View
     private ArrayList<SpecularPath> paths = new ArrayList<SpecularPath>();
     private ArrayList<SpecularPath> undonePaths = new ArrayList<SpecularPath>();
     private boolean erase = false;
-    private int colorBeforeErase;
     private Bitmap photoBM;
     private Paint photoPaint;
 
