@@ -1,13 +1,16 @@
 package com.informaticalab.drawingapp;
 
+import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.ColorInt;
 import android.support.design.widget.CoordinatorLayout;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -37,6 +40,7 @@ public class DrawingActivity extends AppCompatActivity
 {
     public static final String IMAGE_PATH = "IMAGE_PATH_TO_LOAD";
     private static final String LOG_TAG = DrawingActivity.class.getSimpleName();
+    private static final int MY_PERMISSION_LOAD_GALLERY = 150;
     private CoordinatorLayout mCoordinatorLayout;
     private FloatingActionButton undo;
     private FloatingActionButton redo;
@@ -372,9 +376,29 @@ public class DrawingActivity extends AppCompatActivity
 
 
     }
-
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case MY_PERMISSION_LOAD_GALLERY: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0) {
+                    saveImage();
+                }
+            }
+        }
+    }
     private boolean saveImage()
     {
+        int permissionCheck = ContextCompat.checkSelfPermission(this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                    MY_PERMISSION_LOAD_GALLERY);
+            return false;
+        }
+
         try
         {
             drawingView.setDrawingCacheEnabled(true);
