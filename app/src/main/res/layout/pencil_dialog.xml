@@ -61,14 +61,14 @@
                 android:src="@drawable/horizontalflip_imagebutton"
                 />
             <ImageButton
-                android:id="@+id/cut_ib"
+                android:id="@+id/grid_ib"
                 android:layout_width="36dp"
                 android:layout_height="36dp"
                 android:layout_marginRight="5dp"
 
                 android:background="@color/white"
                 android:scaleType="fitXY"
-                android:src="@drawable/cut_imagebutton"
+                android:src="@drawable/grid_imagebutton"
                 />
     </LinearLayout>
 

@@ -41,6 +41,13 @@ public class DrawingActivity extends AppCompatActivity
     public static final String IMAGE_PATH = "IMAGE_PATH_TO_LOAD";
     private static final String LOG_TAG = DrawingActivity.class.getSimpleName();
     private static final int MY_PERMISSION_LOAD_GALLERY = 150;
+
+    //SavedInstanceState keys:
+    static final String STATE_RUBBER = "onRubberisSelected";
+    static final String STATE_VERTICAL_FLIP = "verticalFlipisSelected";
+    static final String STATE_HORIZONTAL_FLIP = "horizontalFlipisSelected";
+    static final String STATE_GRID = "gridIsSelected";
+
     private CoordinatorLayout mCoordinatorLayout;
     private FloatingActionButton undo;
     private FloatingActionButton redo;
@@ -54,10 +61,10 @@ public class DrawingActivity extends AppCompatActivity
     private MaterialDialog pencilDialog;
     private ModalBottomSheet mModalBottomSheet;
 
-    private boolean onRubberisSelected = false; //TODO: Salvare nella savedinstancestate.
-    private boolean verticalFlipisSelected = false; //TODO: Salvare nella savedinstancestate.
-    private boolean horizontalFlipisSelected = false; //TODO: Salvare nella savedinstancestate.
-    private boolean cutIsSelected = false; //TODO: Salvare nella savedinstancestate.
+    private boolean onRubberisSelected = false;
+    private boolean verticalFlipisSelected = false;
+    private boolean horizontalFlipisSelected = false;
+    private boolean gridIsSelected = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -73,7 +80,20 @@ public class DrawingActivity extends AppCompatActivity
         mModalBottomSheet = new ModalBottomSheet();
 
         mCoordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinator_layout);
+        drawingView = (DrawingView) findViewById(R.id.drawing_view);
+        undo = (FloatingActionButton) findViewById(R.id.undo_fab);
+        redo = (FloatingActionButton) findViewById(R.id.redo_fab);
+        trash = (FloatingActionButton) findViewById(R.id.trash_fab);
+        pencilFab = (FloatingActionButton) findViewById(R.id.pencil_fab);
 
+        // Restore value of members from saved state
+        if (savedInstanceState != null)
+        {
+            onRubberisSelected = savedInstanceState.getBoolean(STATE_RUBBER);
+            verticalFlipisSelected = savedInstanceState.getBoolean(STATE_VERTICAL_FLIP);
+            horizontalFlipisSelected = savedInstanceState.getBoolean(STATE_HORIZONTAL_FLIP);
+            gridIsSelected = savedInstanceState.getBoolean(STATE_GRID);
+        }
 
         fabMenuTwo.setOnFloatingActionsMenuUpdateListener(
                 new FloatingActionsMenu.OnFloatingActionsMenuUpdateListener()
@@ -90,11 +110,7 @@ public class DrawingActivity extends AppCompatActivity
                         fabMenu.collapse();
                     }
                 });
-        drawingView = (DrawingView) findViewById(R.id.drawing_view);
-        undo = (FloatingActionButton) findViewById(R.id.undo_fab);
-        redo = (FloatingActionButton) findViewById(R.id.redo_fab);
-        trash = (FloatingActionButton) findViewById(R.id.trash_fab);
-        pencilFab = (FloatingActionButton) findViewById(R.id.pencil_fab);
+
 
 
         pencilFab.setOnClickListener(new View.OnClickListener()
@@ -201,9 +217,9 @@ public class DrawingActivity extends AppCompatActivity
                     }
                 });
 
-                ImageButton cut = (ImageButton) pencilDialog.findViewById(R.id.cut_ib);
-                cut.setSelected(cutIsSelected);
-                cut.setOnTouchListener(new View.OnTouchListener()
+                ImageButton grid = (ImageButton) pencilDialog.findViewById(R.id.grid_ib);
+                grid.setSelected(gridIsSelected);
+                grid.setOnTouchListener(new View.OnTouchListener()
                 {
 
                     @Override
@@ -212,7 +228,7 @@ public class DrawingActivity extends AppCompatActivity
                         if (event.getAction() == MotionEvent.ACTION_UP)
                         {
                             v.setSelected(!v.isSelected());
-                            cutIsSelected = v.isSelected();
+                            gridIsSelected = v.isSelected();
                             drawingView.toggleGrid();
                             return true;
                         }
@@ -296,8 +312,21 @@ public class DrawingActivity extends AppCompatActivity
             String path = getIntent().getStringExtra(IMAGE_PATH);
             drawingView.addImage(path);
         }
+
     }
 
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        // Save the user's current drawer options state
+
+        savedInstanceState.putBoolean(STATE_RUBBER, onRubberisSelected);
+        savedInstanceState.putBoolean(STATE_VERTICAL_FLIP, verticalFlipisSelected);
+        savedInstanceState.putBoolean(STATE_HORIZONTAL_FLIP, horizontalFlipisSelected);
+        savedInstanceState.putBoolean(STATE_GRID, gridIsSelected);
+
+        // Always call the superclass so it can save the view hierarchy state
+        super.onSaveInstanceState(savedInstanceState);
+    }
     @Override
     public void onColorSelected(@ColorInt int color)
     {
