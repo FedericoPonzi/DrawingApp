@@ -173,28 +173,7 @@ public class DrawingActivity extends AppCompatActivity
                 });
 
 
-                //TODO: Nomi scambiati. LOL
-                ImageButton vflip = (ImageButton) pencilDialog.findViewById(R.id.horizontalflip_ib);
-                vflip.setSelected(verticalFlipisSelected);
-                vflip.setOnTouchListener(new View.OnTouchListener()
-                {
-
-                    @Override
-                    public boolean onTouch(View v, MotionEvent event)
-                    {
-                        if (event.getAction() == MotionEvent.ACTION_UP)
-                        {
-                            v.setSelected(!v.isSelected());
-                            verticalFlipisSelected = v.isSelected();
-                            drawingView.setVerticalFlip(verticalFlipisSelected);
-                            return true;
-                        }
-                        return false;
-
-                    }
-                });
-
-                ImageButton hflip = (ImageButton) pencilDialog.findViewById(R.id.verticalflip_ib);
+                ImageButton hflip = (ImageButton) pencilDialog.findViewById(R.id.horizontalflip_ib);
                 hflip.setSelected(horizontalFlipisSelected);
                 hflip.setOnTouchListener(new View.OnTouchListener()
                 {
@@ -202,13 +181,33 @@ public class DrawingActivity extends AppCompatActivity
                     @Override
                     public boolean onTouch(View v, MotionEvent event)
                     {
+                        if (event.getAction() == MotionEvent.ACTION_UP)
+                        {
+                            v.setSelected(!v.isSelected());
+                            horizontalFlipisSelected = v.isSelected();
+                            drawingView.setVerticalFlip(horizontalFlipisSelected);
+                            return true;
+                        }
+                        return false;
+
+                    }
+                });
+
+                ImageButton vflip = (ImageButton) pencilDialog.findViewById(R.id.verticalflip_ib);
+                vflip.setSelected(verticalFlipisSelected);
+                vflip.setOnTouchListener(new View.OnTouchListener()
+                {
+
+                    @Override
+                    public boolean onTouch(View v, MotionEvent event)
+                    {
 
                         if (event.getAction() == MotionEvent.ACTION_UP)
                         {
-                            Log.v(LOG_TAG, "HorizontalFlip: " + horizontalFlipisSelected);
+                            Log.v(LOG_TAG, "VerticalFlip: " + verticalFlipisSelected);
                             v.setSelected(!v.isSelected());
-                            horizontalFlipisSelected = v.isSelected();
-                            drawingView.setHorizontalFlip(horizontalFlipisSelected);
+                            verticalFlipisSelected = v.isSelected();
+                            drawingView.setHorizontalFlip(verticalFlipisSelected);
                             return true;
                         }
 
@@ -405,6 +404,7 @@ public class DrawingActivity extends AppCompatActivity
 
 
     }
+
     @Override
     public void onRequestPermissionsResult(int requestCode,
                                            String permissions[], int[] grantResults) {

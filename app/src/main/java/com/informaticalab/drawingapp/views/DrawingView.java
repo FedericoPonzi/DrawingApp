@@ -167,7 +167,6 @@ public class DrawingView extends View
 
     /**
      * Resize the photo before showing it on the canvas.
-     * TODO: verificare che la path sia presente  priam di provare a fare decode.
      */
     private void resizePhoto()
     {
