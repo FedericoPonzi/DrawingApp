@@ -12,6 +12,7 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.MotionEvent;
+import android.view.ScaleGestureDetector;
 import android.view.View;
 
 import com.informaticalab.drawingapp.R;
@@ -22,8 +23,7 @@ import java.util.ArrayList;
 /**
  * Created by FedericoPonzi on 12/02/2016.
  */
-public class DrawingView extends View
-{
+public class DrawingView extends View {
 
     private static String LOG_TAG = DrawingView.class.getSimpleName();
 
@@ -32,7 +32,10 @@ public class DrawingView extends View
     private ArrayList<SpecularPath> paths = new ArrayList<SpecularPath>();
     private ArrayList<SpecularPath> undonePaths = new ArrayList<SpecularPath>();
     private boolean erase = false;
-    private int colorBeforeErase;
+
+    private ScaleGestureDetector mScaleDetector;
+    private float mScaleFactor = 1.f;
+
     private Bitmap photoBM;
     private Paint photoPaint;
 
@@ -40,6 +43,8 @@ public class DrawingView extends View
     private long halfHorizontal = 0;
     private boolean mirrorHorizontal = false;
     private boolean mirrorVertical = false;
+    private int bitmapWidth;
+    private int bitmapHeight;
 
     //drawing path
     private SpecularPath drawPath;
@@ -67,23 +72,21 @@ public class DrawingView extends View
 
     private ArrayList<SpecularPath> gridPaths = new ArrayList<>();
 
-    public DrawingView(Context context, AttributeSet attrs)
-    {
+    public DrawingView(Context context, AttributeSet attrs) {
         super(context, attrs);
         init();
     }
-    public boolean isEdited()
-    {
+
+    public boolean isEdited() {
         return paths.size() > 0;
     }
-    public void setColor(int color)
-    {
+
+    public void setColor(int color) {
 
         this.paintColor = color;
 
         //Is is erase, save the selected color but not set it now.
-        if (erase)
-        {
+        if (erase) {
             return;
         }
 
@@ -99,8 +102,8 @@ public class DrawingView extends View
 
     private Paint gridPaint;
 
-    private void init()
-    {
+    private void init() {
+        mScaleDetector = new ScaleGestureDetector(getContext(), new ScaleListener());
 
         /*
             Setup for the Grid:
@@ -136,15 +139,13 @@ public class DrawingView extends View
     }
 
     private static int calculateInSampleSize(
-            BitmapFactory.Options options, int reqWidth, int reqHeight)
-    {
+            BitmapFactory.Options options, int reqWidth, int reqHeight) {
         // Raw height and width of image
         final int height = options.outHeight;
         final int width = options.outWidth;
         int inSampleSize = 1;
 
-        if (height > reqHeight || width > reqWidth)
-        {
+        if (height > reqHeight || width > reqWidth) {
 
             final int halfHeight = height / 2;
             final int halfWidth = width / 2;
@@ -152,8 +153,7 @@ public class DrawingView extends View
             // Calculate the largest inSampleSize value that is a power of 2 and keeps both
             // height and width larger than the requested height and width.
             while ((halfHeight / inSampleSize) > reqHeight
-                    && (halfWidth / inSampleSize) > reqWidth)
-            {
+                    && (halfWidth / inSampleSize) > reqWidth) {
                 inSampleSize *= 2;
             }
         }
@@ -161,8 +161,7 @@ public class DrawingView extends View
         return inSampleSize;
     }
 
-    public void addImage(String path)
-    {
+    public void addImage(String path) {
         photoPath = path;
     }
 
@@ -170,10 +169,8 @@ public class DrawingView extends View
      * Resize the photo before showing it on the canvas.
      * TODO: verificare che la path sia presente  priam di provare a fare decode.
      */
-    private void resizePhoto()
-    {
-        if (photoPath.length() == 0)
-        {
+    private void resizePhoto() {
+        if (photoPath.length() == 0) {
             return;
         }
         Log.d(LOG_TAG, "Path dell' immagine: " + photoPath);
@@ -197,41 +194,51 @@ public class DrawingView extends View
 
     /**
      * Main draw method.
+     *
      * @param canvas
      */
     @Override
-    protected void onDraw(Canvas canvas)
-    {
+    protected void onDraw(Canvas canvas) {
+        canvas.save();
+        canvas.scale(mScaleFactor, mScaleFactor);
+
         canvas.drawColor(Color.WHITE);
-        if (photoBM != null)
-        {
+        if (photoBM != null) {
             canvas.drawBitmap(photoBM, 0, 0, photoPaint);
         }
 
-        for (SpecularPath p : paths)
-        {
+        for (SpecularPath p : paths) {
             p.drawPath(canvas);
 
             //canvas.drawPath(p, p.getPaint());
         }
-        if (isGridVisible)
-        {
-            for (SpecularPath p : gridPaths)
-            {
+        if (isGridVisible) {
+            for (SpecularPath p : gridPaths) {
                 p.drawPath(canvas);
             }
         }
 
         drawPath.drawPath(canvas);
+        canvas.restore();
         //canvas.drawPath(drawPath, drawPath.getPaint());
     }
 
-    private int bitmapWidth;
-    private int bitmapHeight;
+    private class ScaleListener
+            extends ScaleGestureDetector.SimpleOnScaleGestureListener {
+        @Override
+        public boolean onScale(ScaleGestureDetector detector) {
+            mScaleFactor *= detector.getScaleFactor();
+
+            // Don't let the object get too small or too large.
+            mScaleFactor = Math.max(0.1f, Math.min(mScaleFactor, 5.0f));
+
+            invalidate();
+            return true;
+        }
+    }
 
     @Override
-    protected void onSizeChanged(int w, int h, int oldw, int oldh)
-    {
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         Log.v(LOG_TAG, "On Size Changed called");
         //create canvas of certain device size.
         super.onSizeChanged(w, h, oldw, oldh);
@@ -251,21 +258,19 @@ public class DrawingView extends View
 
         gridPaths = new ArrayList<>();
         Log.v(LOG_TAG, "Size e width: " + bitmapWidth + " h:" + bitmapHeight);
-        for (int i = 0; i < bitmapWidth; i += 25)
-        {
+        for (int i = 0; i < bitmapWidth; i += 25) {
             Log.v(LOG_TAG, "Creo griglia:" + i);
             SpecularPath p = new SpecularPath(gridPaint, false, false, halfHorizontal,
-                                              halfVertical);
+                    halfVertical);
             p.moveTo(i, 0);
             p.quadTo(i, 0, i, bitmapHeight);
             p.lineTo(i, bitmapHeight);
             gridPaths.add(p);
         }
-        for (int i = 0; i < bitmapHeight; i += 25)
-        {
+        for (int i = 0; i < bitmapHeight; i += 25) {
             Log.v(LOG_TAG, "Creo griglia:" + i);
             SpecularPath p = new SpecularPath(gridPaint, false, false, halfHorizontal,
-                                              halfVertical);
+                    halfVertical);
             p.moveTo(0, i);
             p.quadTo(0, i, bitmapWidth, i);
             p.lineTo(bitmapWidth, i);
@@ -275,13 +280,13 @@ public class DrawingView extends View
     }
 
     @Override
-    public boolean onTouchEvent(MotionEvent event)
-    {
+    public boolean onTouchEvent(MotionEvent event) {
+        mScaleDetector.onTouchEvent(event);
+
         float touchX = event.getX();
         float touchY = event.getY();
 
-        switch (event.getAction())
-        {
+        switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 touch_start(touchX, touchY);
                 invalidate();
@@ -303,8 +308,7 @@ public class DrawingView extends View
     /**
      * Start new Drawing
      */
-    public void eraseAll()
-    {
+    public void eraseAll() {
         drawCanvas.drawColor(0, PorterDuff.Mode.CLEAR);
         paths = new ArrayList<SpecularPath>();
         undonePaths = new ArrayList<SpecularPath>();
@@ -312,22 +316,19 @@ public class DrawingView extends View
         invalidate();
     }
 
-    private void touch_start(float x, float y)
-    {
+    private void touch_start(float x, float y) {
         undonePaths.clear();
         drawPath = new SpecularPath(drawPaint, mirrorVertical, mirrorHorizontal, halfHorizontal,
-                                    halfVertical);
+                halfVertical);
         drawPath.moveTo(x, y);
         mX = x;
         mY = y;
     }
 
-    private void touch_move(float x, float y)
-    {
+    private void touch_move(float x, float y) {
         float dx = Math.abs(x - mX);
         float dy = Math.abs(y - mY);
-        if (dx >= TOUCH_TOLERANCE || dy >= TOUCH_TOLERANCE)
-        {
+        if (dx >= TOUCH_TOLERANCE || dy >= TOUCH_TOLERANCE) {
             drawPath.quadTo(mX, mY, (x + mX) / 2, (y + mY) / 2);
             mX = x;
             mY = y;
@@ -335,8 +336,7 @@ public class DrawingView extends View
 
     }
 
-    private void touch_up()
-    {
+    private void touch_up() {
         drawPath.quadTo(mX, mY, mX + 0.1f, mY + 0.1f);
         drawPath.lineTo(mX, mY);
         drawCanvas.drawPath(drawPath, drawPath.getPaint());
@@ -349,10 +349,9 @@ public class DrawingView extends View
      *
      * @param newSize
      */
-    public void setBrushSize(float newSize)
-    {
+    public void setBrushSize(float newSize) {
         float pixelAmount = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
-                                                      newSize, getResources().getDisplayMetrics());
+                newSize, getResources().getDisplayMetrics());
         brushSize = newSize;
         Log.i(LOG_TAG, "Brush size: " + newSize + " pizel Amount:" + pixelAmount);
         drawPaint = new Paint();
@@ -367,30 +366,24 @@ public class DrawingView extends View
     }
 
 
-    public void onClickUndo()
-    {
-        if (paths.size() > 0)
-        {
+    public void onClickUndo() {
+        if (paths.size() > 0) {
             undonePaths.add(paths.remove(paths.size() - 1));
             invalidate();
         }
 
     }
 
-    public void onClickRedo()
-    {
-        if (undonePaths.size() > 0)
-        {
+    public void onClickRedo() {
+        if (undonePaths.size() > 0) {
             paths.add(undonePaths.remove(undonePaths.size() - 1));
             invalidate();
         }
     }
 
 
-    public void toggleErase()
-    {
-        if (erase)
-        {
+    public void toggleErase() {
+        if (erase) {
             erase = false;
             Log.i(LOG_TAG, "non erase mode");
             drawPaint = new Paint();
@@ -402,9 +395,7 @@ public class DrawingView extends View
             drawPaint.setStrokeJoin(Paint.Join.ROUND);
             drawPaint.setStrokeCap(Paint.Cap.ROUND);
             drawPaint.setXfermode(null);
-        }
-        else
-        {
+        } else {
             erase = true;
             Log.i(LOG_TAG, "in erase mode");
             drawPaint = new Paint();
@@ -418,30 +409,25 @@ public class DrawingView extends View
     }
 
 
-    public float getBrushSize()
-    {
+    public float getBrushSize() {
         return brushSize;
     }
 
-    public Bitmap getBitmap()
-    {
+    public Bitmap getBitmap() {
         return canvasBitmap;
     }
 
-    public void setVerticalFlip(boolean verticalFlip)
-    {
+    public void setVerticalFlip(boolean verticalFlip) {
         Log.v(LOG_TAG, "VerticalFlip: " + verticalFlip);
         this.mirrorVertical = verticalFlip;
     }
 
-    public void setHorizontalFlip(boolean horizontalFlip)
-    {
+    public void setHorizontalFlip(boolean horizontalFlip) {
         Log.v(LOG_TAG, "HorizontalFlip: " + horizontalFlip);
         this.mirrorHorizontal = horizontalFlip;
     }
 
-    public void toggleGrid()
-    {
+    public void toggleGrid() {
         isGridVisible = !isGridVisible;
         invalidate();
         Log.i(LOG_TAG, "togglegrid:" + isGridVisible);
