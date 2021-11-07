@@ -32,10 +32,13 @@ public class DrawingView extends View {
     private ArrayList<SpecularPath> paths = new ArrayList<SpecularPath>();
     private ArrayList<SpecularPath> undonePaths = new ArrayList<SpecularPath>();
     private boolean erase = false;
+<<<<<<< HEAD
 
     private ScaleGestureDetector mScaleDetector;
     private float mScaleFactor = 1.f;
 
+=======
+>>>>>>> 56d1cf409c37fda46ffe7ff569b7c7ff6e2f9d39
     private Bitmap photoBM;
     private Paint photoPaint;
 
@@ -167,7 +170,6 @@ public class DrawingView extends View {
 
     /**
      * Resize the photo before showing it on the canvas.
-     * TODO: verificare che la path sia presente  priam di provare a fare decode.
      */
     private void resizePhoto() {
         if (photoPath.length() == 0) {

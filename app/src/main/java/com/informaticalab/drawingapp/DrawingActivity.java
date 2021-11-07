@@ -1,12 +1,16 @@
 package com.informaticalab.drawingapp;
 
+import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.ColorInt;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -15,24 +19,36 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.getbase.floatingactionbutton.FloatingActionButton;
 import com.getbase.floatingactionbutton.FloatingActionsMenu;
+import com.informaticalab.drawingapp.utils.ModalBottomSheet;
 import com.informaticalab.drawingapp.views.DrawingView;
 import com.rey.material.widget.Slider;
 import com.thebluealliance.spectrum.SpectrumPalette;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.OutputStream;
 
-public class DrawingActivity extends AppCompatActivity implements SpectrumPalette.OnColorSelectedListener
+public class DrawingActivity extends AppCompatActivity
+        implements SpectrumPalette.OnColorSelectedListener,
+        ModalBottomSheet.OnFragmentInteractionListener
 {
     public static final String IMAGE_PATH = "IMAGE_PATH_TO_LOAD";
     private static final String LOG_TAG = DrawingActivity.class.getSimpleName();
+    private static final int MY_PERMISSION_LOAD_GALLERY = 150;
+
+    //SavedInstanceState keys:
+    static final String STATE_RUBBER = "onRubberisSelected";
+    static final String STATE_VERTICAL_FLIP = "verticalFlipisSelected";
+    static final String STATE_HORIZONTAL_FLIP = "horizontalFlipisSelected";
+    static final String STATE_GRID = "gridIsSelected";
+
+    private CoordinatorLayout mCoordinatorLayout;
     private FloatingActionButton undo;
     private FloatingActionButton redo;
     private FloatingActionButton trash;
@@ -41,13 +57,14 @@ public class DrawingActivity extends AppCompatActivity implements SpectrumPalett
     private FloatingActionsMenu fabMenuTwo;
     private FloatingActionButton export;
     private FloatingActionButton pencilFab;
-    private String mCurrentPhotoPath;
+    private File mImageFile;
     private MaterialDialog pencilDialog;
+    private ModalBottomSheet mModalBottomSheet;
 
-    private boolean onRubberisSelected = false; //TODO: Salvare nella savedinstancestate.
-    private boolean verticalFlipisSelected = false; //TODO: Salvare nella savedinstancestate.
-    private boolean horizontalFlipisSelected = false; //TODO: Salvare nella savedinstancestate.
-    private boolean cutIsSelected = false; //TODO: Salvare nella savedinstancestate.
+    private boolean onRubberisSelected = false;
+    private boolean verticalFlipisSelected = false;
+    private boolean horizontalFlipisSelected = false;
+    private boolean gridIsSelected = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -55,10 +72,28 @@ public class DrawingActivity extends AppCompatActivity implements SpectrumPalett
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_drawing);
         undo = (FloatingActionButton) findViewById(R.id.undo_fab);
-        fabMenu = (FloatingActionsMenu) undo.getParent();
         export = (FloatingActionButton) findViewById(R.id.export_fab);
 
+        fabMenu = (FloatingActionsMenu) undo.getParent();
         fabMenuTwo = (FloatingActionsMenu) export.getParent();
+
+        mModalBottomSheet = new ModalBottomSheet();
+
+        mCoordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinator_layout);
+        drawingView = (DrawingView) findViewById(R.id.drawing_view);
+        undo = (FloatingActionButton) findViewById(R.id.undo_fab);
+        redo = (FloatingActionButton) findViewById(R.id.redo_fab);
+        trash = (FloatingActionButton) findViewById(R.id.trash_fab);
+        pencilFab = (FloatingActionButton) findViewById(R.id.pencil_fab);
+
+        // Restore value of members from saved state
+        if (savedInstanceState != null)
+        {
+            onRubberisSelected = savedInstanceState.getBoolean(STATE_RUBBER);
+            verticalFlipisSelected = savedInstanceState.getBoolean(STATE_VERTICAL_FLIP);
+            horizontalFlipisSelected = savedInstanceState.getBoolean(STATE_HORIZONTAL_FLIP);
+            gridIsSelected = savedInstanceState.getBoolean(STATE_GRID);
+        }
 
         fabMenuTwo.setOnFloatingActionsMenuUpdateListener(
                 new FloatingActionsMenu.OnFloatingActionsMenuUpdateListener()
@@ -75,11 +110,7 @@ public class DrawingActivity extends AppCompatActivity implements SpectrumPalett
                         fabMenu.collapse();
                     }
                 });
-        drawingView = (DrawingView) findViewById(R.id.drawing_view);
-        undo = (FloatingActionButton) findViewById(R.id.undo_fab);
-        redo = (FloatingActionButton) findViewById(R.id.redo_fab);
-        trash = (FloatingActionButton) findViewById(R.id.trash_fab);
-        pencilFab = (FloatingActionButton) findViewById(R.id.pencil_fab);
+
 
 
         pencilFab.setOnClickListener(new View.OnClickListener()
@@ -101,7 +132,8 @@ public class DrawingActivity extends AppCompatActivity implements SpectrumPalett
                                     }
                                 });
                 pencilDialog = i.build();
-                com.rey.material.widget.Slider slider = (com.rey.material.widget.Slider) pencilDialog
+                com.rey.material.widget.Slider slider = (com.rey.material.widget.Slider)
+                        pencilDialog
                         .findViewById(
                                 R.id.slider);
                 Log.i(LOG_TAG, "Last brush size: " + drawingView.getBrushSize());
@@ -117,7 +149,8 @@ public class DrawingActivity extends AppCompatActivity implements SpectrumPalett
                     }
                 });
 
-                ImageButton rubber = (ImageButton) pencilDialog.findViewById(R.id.rubber_imagebutton);
+                ImageButton rubber = (ImageButton) pencilDialog.findViewById(
+                        R.id.rubber_imagebutton);
 
                 rubber.setSelected(onRubberisSelected);
                 rubber.setOnTouchListener(new View.OnTouchListener()
@@ -140,29 +173,7 @@ public class DrawingActivity extends AppCompatActivity implements SpectrumPalett
                 });
 
 
-
-                //TODO: Nomi scambiati. LOL
-                ImageButton vflip = (ImageButton) pencilDialog.findViewById(R.id.horizontalflip_ib);
-                vflip.setSelected(verticalFlipisSelected);
-                vflip.setOnTouchListener(new View.OnTouchListener()
-                {
-
-                    @Override
-                    public boolean onTouch(View v, MotionEvent event)
-                    {
-                        if (event.getAction() == MotionEvent.ACTION_UP)
-                        {
-                            v.setSelected(!v.isSelected());
-                            verticalFlipisSelected = v.isSelected();
-                            drawingView.setVerticalFlip(verticalFlipisSelected);
-                            return true;
-                        }
-                        return false;
-
-                    }
-                });
-
-                ImageButton hflip = (ImageButton) pencilDialog.findViewById(R.id.verticalflip_ib);
+                ImageButton hflip = (ImageButton) pencilDialog.findViewById(R.id.horizontalflip_ib);
                 hflip.setSelected(horizontalFlipisSelected);
                 hflip.setOnTouchListener(new View.OnTouchListener()
                 {
@@ -170,13 +181,33 @@ public class DrawingActivity extends AppCompatActivity implements SpectrumPalett
                     @Override
                     public boolean onTouch(View v, MotionEvent event)
                     {
+                        if (event.getAction() == MotionEvent.ACTION_UP)
+                        {
+                            v.setSelected(!v.isSelected());
+                            horizontalFlipisSelected = v.isSelected();
+                            drawingView.setVerticalFlip(horizontalFlipisSelected);
+                            return true;
+                        }
+                        return false;
+
+                    }
+                });
+
+                ImageButton vflip = (ImageButton) pencilDialog.findViewById(R.id.verticalflip_ib);
+                vflip.setSelected(verticalFlipisSelected);
+                vflip.setOnTouchListener(new View.OnTouchListener()
+                {
+
+                    @Override
+                    public boolean onTouch(View v, MotionEvent event)
+                    {
 
                         if (event.getAction() == MotionEvent.ACTION_UP)
                         {
-                            Log.v(LOG_TAG, "HorizontalFlip: " + horizontalFlipisSelected);
+                            Log.v(LOG_TAG, "VerticalFlip: " + verticalFlipisSelected);
                             v.setSelected(!v.isSelected());
-                            horizontalFlipisSelected = v.isSelected();
-                            drawingView.setHorizontalFlip(horizontalFlipisSelected);
+                            verticalFlipisSelected = v.isSelected();
+                            drawingView.setHorizontalFlip(verticalFlipisSelected);
                             return true;
                         }
 
@@ -185,9 +216,9 @@ public class DrawingActivity extends AppCompatActivity implements SpectrumPalett
                     }
                 });
 
-                ImageButton cut = (ImageButton) pencilDialog.findViewById(R.id.cut_ib);
-                cut.setSelected(cutIsSelected);
-                cut.setOnTouchListener(new View.OnTouchListener()
+                ImageButton grid = (ImageButton) pencilDialog.findViewById(R.id.grid_ib);
+                grid.setSelected(gridIsSelected);
+                grid.setOnTouchListener(new View.OnTouchListener()
                 {
 
                     @Override
@@ -196,7 +227,7 @@ public class DrawingActivity extends AppCompatActivity implements SpectrumPalett
                         if (event.getAction() == MotionEvent.ACTION_UP)
                         {
                             v.setSelected(!v.isSelected());
-                            cutIsSelected = v.isSelected();
+                            gridIsSelected = v.isSelected();
                             drawingView.toggleGrid();
                             return true;
                         }
@@ -204,7 +235,8 @@ public class DrawingActivity extends AppCompatActivity implements SpectrumPalett
 
                     }
                 });
-                SpectrumPalette spectrumPalette = (SpectrumPalette) pencilDialog.findViewById(R.id.palette);
+                SpectrumPalette spectrumPalette = (SpectrumPalette) pencilDialog.findViewById(
+                        R.id.palette);
                 int[] colors = getResources().getIntArray(R.array.demo_colors);
                 spectrumPalette.setColors(colors);
                 spectrumPalette.setOnColorSelectedListener(DrawingActivity.this
@@ -214,10 +246,13 @@ public class DrawingActivity extends AppCompatActivity implements SpectrumPalett
         });
         export.setOnClickListener(new View.OnClickListener()
         {
+
             @Override
             public void onClick(View v)
             {
-                shareImage();
+
+                mModalBottomSheet.show(getSupportFragmentManager(), mModalBottomSheet.getTag());
+
             }
         });
         undo.setOnClickListener(new View.OnClickListener()
@@ -276,8 +311,21 @@ public class DrawingActivity extends AppCompatActivity implements SpectrumPalett
             String path = getIntent().getStringExtra(IMAGE_PATH);
             drawingView.addImage(path);
         }
+
     }
 
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        // Save the user's current drawer options state
+
+        savedInstanceState.putBoolean(STATE_RUBBER, onRubberisSelected);
+        savedInstanceState.putBoolean(STATE_VERTICAL_FLIP, verticalFlipisSelected);
+        savedInstanceState.putBoolean(STATE_HORIZONTAL_FLIP, horizontalFlipisSelected);
+        savedInstanceState.putBoolean(STATE_GRID, gridIsSelected);
+
+        // Always call the superclass so it can save the view hierarchy state
+        super.onSaveInstanceState(savedInstanceState);
+    }
     @Override
     public void onColorSelected(@ColorInt int color)
     {
@@ -288,6 +336,7 @@ public class DrawingActivity extends AppCompatActivity implements SpectrumPalett
             pencilDialog.dismiss();
         }
     }
+
     @Override
     public void onBackPressed()
     {
@@ -324,54 +373,115 @@ public class DrawingActivity extends AppCompatActivity implements SpectrumPalett
         }
 
     }
+
+    @Override
+    public void onShare()
+    {
+        shareImage();
+        mModalBottomSheet.dismiss();
+    }
+
+    @Override
+    public void onSave()
+    {
+        saveImage();
+        mModalBottomSheet.dismiss();
+    }
+
+
     private void shareImage()
     {
+        if (!saveImage())
+        {
+            return;
+        }
+        Intent shareIntent = new Intent();
+        shareIntent.setAction(Intent.ACTION_SEND);
+        shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(mImageFile));
+        shareIntent.setType("image/png");
+        shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        startActivity(Intent.createChooser(shareIntent, "Share image"));
+
+
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case MY_PERMISSION_LOAD_GALLERY: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0) {
+                    saveImage();
+                }
+            }
+        }
+    }
+    private boolean saveImage()
+    {
+        int permissionCheck = ContextCompat.checkSelfPermission(this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                    MY_PERMISSION_LOAD_GALLERY);
+            return false;
+        }
+
         try
         {
             drawingView.setDrawingCacheEnabled(true);
             drawingView.invalidate();
+
             String path = Environment.getExternalStorageDirectory().toString();
             OutputStream fOut = null;
-            File file = new File(path,
-                                 "android_drawing_app.png");
-            file.getParentFile().mkdirs();
+            File directory = Environment.getExternalStoragePublicDirectory(
+                    Environment.DIRECTORY_PICTURES
+            );
+            if(mImageFile == null)
+            {
+                String filename = "android_drawing_app" + (System.currentTimeMillis() / 1000) + "" + ".png";
+
+                // path to /data/data/yourapp/app_data/imageDir
+                // Create imageDir
+                Log.i(LOG_TAG, "Path: " + directory.getAbsolutePath());
+
+                mImageFile=new File(directory, filename);
+
+                //mImageFile = new File(path,filename);
+                mImageFile.getParentFile().mkdirs();
+
+            }
+            Log.i(LOG_TAG, "Path: " + directory.getAbsolutePath());
 
             //Creo un file tmeporaneo:
-            file.createTempFile("drawingapp", "" + (System.currentTimeMillis() / 1000));
+            //file.createTempFile("drawingapp", "" );
 
-            fOut = new FileOutputStream(file);
+            fOut = new FileOutputStream(mImageFile);
 
 
             if (drawingView.getDrawingCache() == null)
             {
                 Log.e(LOG_TAG, "Unable to get drawing cache ");
+                Toast.makeText(this, R.string.error_saving_file, Toast.LENGTH_LONG).show();
+                return false;
             }
-            //drawingView.getBitmap().compress(Bitmap.CompressFormat.PNG, 90, fOut);
-            drawingView.getDrawingCache().compress(Bitmap.CompressFormat.PNG, 90, fOut);
-            //drawingView.getDrawingCache()
-            //        .compress(Bitmap.CompressFormat.PNG, 90, fOut);
 
+            drawingView.getDrawingCache().compress(Bitmap.CompressFormat.PNG, 90, fOut);
 
             fOut.flush();
             fOut.close();
 
-            Intent shareIntent = new Intent();
-            shareIntent.setAction(Intent.ACTION_SEND);
-            shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(file));
-            shareIntent.setType("image/png");
-            shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            startActivity(Intent.createChooser(shareIntent, "Share image"));
-
-        }
-        catch (IOException e)
-        {
-            Log.e(LOG_TAG, e.getCause() + e.getMessage());
         }
         catch (Exception e)
         {
+            Toast.makeText(this, R.string.error_saving_file, Toast.LENGTH_LONG).show();
             Log.e(LOG_TAG, e.getCause() + e.getMessage());
+            return false;
         }
-
+        Toast.makeText(this, R.string.toast_saved, Toast.LENGTH_LONG).show();
+        galleryAddPic();
+        return true;
 
     }
 
@@ -381,9 +491,9 @@ public class DrawingActivity extends AppCompatActivity implements SpectrumPalett
     private void galleryAddPic()
     {
         Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-        File f = new File(mCurrentPhotoPath);
-        Uri contentUri = Uri.fromFile(f);
+        Uri contentUri = Uri.fromFile(mImageFile);
         mediaScanIntent.setData(contentUri);
         this.sendBroadcast(mediaScanIntent);
     }
+
 }

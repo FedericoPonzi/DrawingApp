@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">SAPP Design</string>
+    <string name="about_content"><![CDATA[Benvenuto nella migliore applicazione per disengare!     Creata con <strong><em>&lt;3</em></strong> da:<br>         <ul>         <li> &#149; <strong>Antonio Di Rosso</strong>: Designer, UI/ UX</li><br>         <li> &#149; <strong>Federico Ponzi</strong>: Developer</li><br>         </ul>         <br><br>         Realizzata senza scopi di lucro per il laboratorio degli studi visuali de La sapienza in collaborazione con CeSMA.<br>     ]]></string>
+    <string name="about_title">Riguardo SAPP Design</string>
+    <string name="action_about">About</string>
+    <string name="alert_added_content_message">Perdereai eventuali modifiche non salvate.</string>
+    <string name="cool">Figo!</string>
+    <string name="dialog_trash_message"><![CDATA[Sei sicuro? <br> <small>Premendo sì cancellerai modifiche non salvate. </small>]]></string>
+    <string name="dialog_trash_title">Cancella tutto</string>
+    <string name="error_saving_file">Error nel salvataggio dell\' immagine.</string>
+    <string name="hello_blank_fragment"></string>
+    <string name="itsok">Nessun problema!</string>
+    <string name="no">No</string>
+    <string name="open_from_camera">Camera</string>
+    <string name="open_from_gallery">Galleria</string>
+    <string name="toast_saved">Immagine salvata con successo! Woah!</string>
+    <string name="wait">Aspetta</string>
+    <string name="yes">Sì</string>
+</resources>

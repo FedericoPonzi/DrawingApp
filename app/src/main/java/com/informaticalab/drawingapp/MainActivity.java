@@ -1,12 +1,16 @@
 package com.informaticalab.drawingapp;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
@@ -17,6 +21,7 @@ import android.view.View;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.github.clans.fab.FloatingActionButton;
+import com.github.clans.fab.FloatingActionMenu;
 
 import java.io.File;
 import java.io.IOException;
@@ -26,12 +31,15 @@ import java.util.Date;
 public class MainActivity extends AppCompatActivity
 {
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
+    private static final int MY_PERMISSION_LOAD_GALLERY = 150;
     FloatingActionButton fromGalleryFAB;
     FloatingActionButton fromCameraFAB;
     FloatingActionButton fromScartchFAB;
     String mCurrentPhotoPath;
     static final int REQUEST_TAKE_PHOTO = 1;
     static final int PICK_IMAGE_REQUEST = 2;
+    private FloatingActionMenu fabMenu;
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -39,6 +47,7 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        fabMenu = (FloatingActionMenu) findViewById(R.id.fab_menu);
         fromCameraFAB = (FloatingActionButton) findViewById(R.id.open_from_camera);
         fromScartchFAB = (FloatingActionButton) findViewById(R.id.create_from_scratch);
         fromGalleryFAB = (FloatingActionButton) findViewById(R.id.open_from_gallery);
@@ -76,9 +85,7 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onClick(View v)
             {
-                Intent i = new Intent(Intent.ACTION_PICK,
-                                      android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                startActivityForResult(i, PICK_IMAGE_REQUEST);
+                loadFromGallery();
             }
         });
         fromScartchFAB.setOnClickListener(new View.OnClickListener()
@@ -91,6 +98,41 @@ public class MainActivity extends AppCompatActivity
         });
 
     }
+    private void loadFromGallery()
+    {
+        int permissionCheck = ContextCompat.checkSelfPermission(this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
+            Intent i = new Intent(Intent.ACTION_PICK,
+                    android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+            startActivityForResult(i, PICK_IMAGE_REQUEST);
+
+        }
+        else
+        {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                    MY_PERMISSION_LOAD_GALLERY);
+        }
+    }
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case MY_PERMISSION_LOAD_GALLERY: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0) {
+                    loadFromGallery();
+                }
+            }
+        }
+    }
+    @Override
+    protected void onPause()
+    {
+        super.onPause();
+        fabMenu.close(false);
+    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data)
@@ -101,7 +143,6 @@ public class MainActivity extends AppCompatActivity
             Intent i = new Intent(this, DrawingActivity.class);
             i.putExtra(DrawingActivity.IMAGE_PATH, mCurrentPhotoPath.substring("file:".length())); //Tolgo il prefisso.
             startActivity(i);
-            finish();
         }
         else if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null)
         {
@@ -120,7 +161,6 @@ public class MainActivity extends AppCompatActivity
             Intent i = new Intent(this, DrawingActivity.class);
             i.putExtra(DrawingActivity.IMAGE_PATH, mCurrentPhotoPath);
             startActivity(i);
-            finish();
         }
     }
 

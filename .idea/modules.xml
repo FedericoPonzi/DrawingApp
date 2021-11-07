@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/DrawingApp.iml" filepath="$PROJECT_DIR$/DrawingApp.iml" />
-      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file:///media/isaacisback/Data/Dropbox/dev/DrawingApp/DrawingApp.iml" filepath="/media/isaacisback/Data/Dropbox/dev/DrawingApp/DrawingApp.iml" />
+      <module fileurl="file:///media/isaacisback/Data/Dropbox/dev/DrawingApp/app/app.iml" filepath="/media/isaacisback/Data/Dropbox/dev/DrawingApp/app/app.iml" />
     </modules>
   </component>
 </project>
